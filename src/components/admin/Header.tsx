@@ -12,7 +12,7 @@ export default function Header() {
                 </h1>
 
                 <p className="text-sm text-gray-500">
-                    Welcome back, Admin 👋
+                    Welcome back, Admin 
                 </p>
             </div>
 
