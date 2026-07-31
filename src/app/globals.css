@@ -15,6 +15,7 @@ body {
   background: #f8fafc;
   color: #111827;
   font-family: Arial, Helvetica, sans-serif;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -141,29 +142,116 @@ a {
 .cn-toast {
   background: #fff !important;
   color: #111827 !important;
-
-  border: 1px solid #22c55e !important;
   border-radius: 16px !important;
-
+  border: 1px solid #e5e7eb !important;
   padding: 16px !important;
 
   box-shadow:
-    0 10px 30px rgba(0, 0, 0, .08),
-    0 2px 8px rgba(0, 0, 0, .05) !important;
-
-  transition:
-    transform .25s ease,
-    box-shadow .25s ease !important;
+    0 12px 30px rgba(0, 0, 0, .10),
+    0 4px 12px rgba(0, 0, 0, .06) !important;
 }
 
+/* Success */
+.cn-toast[data-type="success"] {
+  border: 1.5px solid #22c55e !important;
+}
+
+/* Error */
 .cn-toast[data-type="error"] {
-  border: 1px solid #ef4444 !important;
+  border: 1.5px solid #ef4444 !important;
 }
 
+/* Warning */
 .cn-toast[data-type="warning"] {
-  border: 1px solid #f59e0b !important;
+  border: 1.5px solid #f59e0b !important;
 }
 
+/* Info */
 .cn-toast[data-type="info"] {
-  border: 1px solid #3b82f6 !important;
+  border: 1.5px solid #3b82f6 !important;
+}
+
+/* Entry Animation */
+.cn-toast[data-mounted="true"] {
+  animation: toastSlideIn .5s cubic-bezier(.22, 1, .36, 1) !important;
+}
+
+/* Exit Animation */
+.cn-toast[data-removed="true"] {
+  animation: toastSlideOut .3s cubic-bezier(.22, 1, .36, 1) forwards !important;
+}
+
+/* Toast content */
+.cn-toast [data-content] {
+  margin-left: 10px !important;
+}
+
+/* Icon */
+.cn-toast [data-icon] {
+  margin-right: 10px !important;
+  flex-shrink: 0;
+}
+
+/* Title */
+.cn-toast-title {
+  font-weight: 600 !important;
+  margin-bottom: 2px !important;
+}
+
+/* Description */
+.cn-toast-description {
+  margin-top: 2px !important;
+  line-height: 1.5 !important;
+}
+
+
+
+/* Disable hover effect */
+.cn-toast,
+.cn-toast:hover {
+  transform: none !important;
+  scale: 1 !important;
+  transition: none !important;
+  cursor: default !important;
+}
+
+/* Disable Sonner hover animations */
+.cn-toast[data-expanded="true"],
+.cn-toast[data-expanded="false"] {
+  transform: none !important;
+}
+
+/* Prevent movement on hover */
+[data-sonner-toast] {
+  transform: none !important;
+  transition: none !important;
+}
+
+[data-sonner-toast]:hover {
+  transform: none !important;
+}
+
+
+@keyframes toastSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-25px) scale(.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-25px) scale(.95);
+  }
 }

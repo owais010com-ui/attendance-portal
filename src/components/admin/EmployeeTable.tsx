@@ -171,7 +171,13 @@ export default function EmployeeTable({
                                 <td className="px-6 py-3 align-middle">
                                     <div className="flex items-center gap-3">
 
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+                                        <div
+                                            className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold"
+                                            style={{
+                                                backgroundColor: "#DBEAFE",
+                                                color: "#2563EB",
+                                            }}
+                                        >
                                             {user.name.charAt(0).toUpperCase()}
                                         </div>
 

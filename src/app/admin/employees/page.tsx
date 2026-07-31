@@ -27,7 +27,7 @@ export default function EmployeesPage() {
 
             <div className="mb-6 flex items-center justify-between">
 
-                <h2 className="text-xl font-semibold text-gray-800">
+                <h2 className="text-2xl font-bold text-gray-800">
                     Employees
                 </h2>
 

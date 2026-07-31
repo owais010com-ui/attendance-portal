@@ -24,10 +24,18 @@ export default function RootLayout({
 
         <Toaster
           position="top-center"
+          richColors
           expand={false}
           visibleToasts={1}
           closeButton={false}
           duration={2500}
+          toastOptions={{
+            classNames: {
+              toast: "cn-toast",
+              title: "cn-toast-title",
+              description: "cn-toast-description",
+            },
+          }}
         />
       </body>
     </html>

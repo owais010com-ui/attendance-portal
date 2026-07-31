@@ -2,6 +2,7 @@
 
 import EmployeeForm from "./EmployeeForm";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEffect } from "react";
 
 interface Employee {
     _id: string;
@@ -22,6 +23,18 @@ export default function EmployeeModal({
     onSuccess,
     employee,
 }: EmployeeModalProps) {
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [isOpen]);
 
     return (
 

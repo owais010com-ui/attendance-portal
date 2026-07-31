@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 
 interface StatCardProps {
     title: string;
-    value: string | number;
+    value: number;
     icon: ReactNode;
     color: string;
 }
@@ -14,22 +14,22 @@ export default function StatCard({
     color,
 }: StatCardProps) {
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300">
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between">
 
                 <div>
-                    <p className="text-gray-500 text-sm">
-                        {title}
-                    </p>
-
-                    <h2 className="text-3xl font-bold mt-2">
+                    <h2 className="text-3xl font-medium text-gray-900">
                         {value}
                     </h2>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                        {title}
+                    </p>
                 </div>
 
                 <div
-                    className={`h-14 w-14 rounded-xl flex items-center justify-center text-white ${color}`}
+                    className={`flex h-12 w-12 items-center justify-center rounded-2xl ${color}shadow-lg transition-all duration-300`}
                 >
                     {icon}
                 </div>
