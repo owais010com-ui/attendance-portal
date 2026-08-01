@@ -14,25 +14,25 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
+interface Attendance {
+    _id: string;
+    employeeId: string;
+    employeeName: string;
+    email: string;
+    photo: string;
+    latitude: number;
+    longitude: number;
+    locationLink: string;
+    date: string;
+    checkIn: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export default function AdminAttendancePage() {
     const [attendance, setAttendance] = useState<Attendance[]>([]);
     const [search, setSearch] = useState("");
-
-    interface Attendance {
-        _id: string;
-        employeeId: string;
-        employeeName: string;
-        email: string;
-        photo: string;
-        latitude: number;
-        longitude: number;
-        locationLink: string;
-        date: string;
-        checkIn: string;
-        status: string;
-        createdAt: string;
-        updatedAt: string;
-    }
 
     useEffect(() => {
         async function getAttendance() {
@@ -59,117 +59,118 @@ export default function AdminAttendancePage() {
         (employee) => employee.status === "Present"
     ).length;
 
-    // Temporary (jab tak employee collection nahi banta)
     const absentEmployees = 0;
-
     const lateEmployees = 0;
 
     return (
-        <div className="w-full space-y-6">
+        <div className="space-y-6">
 
             {/* Heading */}
 
-            <div className="mb-8">
-
-                <h1 className="text-2xl font-bold text-slate-800">
+            <div>
+                <h1 className="text-3xl font-medium text-slate-800">
                     Attendance Dashboard
                 </h1>
 
                 <p className="mt-1 text-slate-500">
                     Manage all employee attendance records
                 </p>
-
             </div>
 
             {/* Cards */}
 
-            <div className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
 
                 {/* Total */}
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300">
 
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="rounded-2xl bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between">
 
                         <div>
-                            <p className="text-gray-500">Total Records</p>
+                            <p className="text-sm text-slate-500">
+                                Total Records
+                            </p>
 
-                            <h2 className="mt-1 text-3xl font-medium text-slate-900">
+                            <h2 className="mt-1 text-3xl font-medium text-gray-900">
                                 {totalEmployees}
                             </h2>
                         </div>
 
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
-                            <Users className="text-blue-600" size={26} />
+                            <Users size={26} className="text-blue-600" />
                         </div>
 
                     </div>
-
                 </div>
 
                 {/* Present */}
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300">
 
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="rounded-2xl bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between">
 
                         <div>
-                            <p className="text-gray-500">Present</p>
+                            <p className="text-sm text-slate-500">
+                                Present
+                            </p>
 
-                            <h2 className="mt-1 text-3xl font-medium text-slate-900">
+                            <h2 className="mt-1 text-3xl font-medium text-gray-900">
                                 {presentEmployees}
                             </h2>
                         </div>
 
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100">
-                            <CircleCheckBig className="text-green-600" size={26} />
+                            <CircleCheckBig size={26} className="text-green-600" />
                         </div>
 
                     </div>
-
                 </div>
 
                 {/* Absent */}
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300">
 
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="rounded-2xl bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between">
 
                         <div>
-                            <p className="text-gray-500">Absent</p>
+                            <p className="text-sm text-slate-500">
+                                Absent
+                            </p>
 
-                            <h2 className="mt-1 text-3xl font-medium text-slate-900">
+                            <h2 className="mt-1 text-3xl font-medium text-gray-900">
                                 {absentEmployees}
                             </h2>
                         </div>
 
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100">
-                            <CircleX className="text-red-600" size={26} />
+                            <CircleX size={26} className="text-red-600" />
                         </div>
 
                     </div>
-
                 </div>
 
                 {/* Late */}
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300">
 
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="rounded-2xl bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between">
 
                         <div>
-                            <p className="text-gray-500">Late</p>
+                            <p className="text-sm text-slate-500">
+                                Late
+                            </p>
 
-                            <h2 className="mt-1 text-3xl font-medium text-slate-900">
+                            <h2 className="mt-1 text-3xl font-medium text-gray-900">
                                 {lateEmployees}
                             </h2>
                         </div>
 
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100">
-                            <Clock3 className="text-orange-600" size={26} />
+                            <Clock3 size={26} className="text-orange-600" />
                         </div>
 
                     </div>
-
                 </div>
 
             </div>
+
             {/* Search */}
 
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -190,170 +191,295 @@ export default function AdminAttendancePage() {
                         placeholder="Search employee..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="h-12 w-full rounded-xl border border-gray-200 bg-white pl-11 pr-4 shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                        className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-11 pr-4 shadow-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                     />
 
                 </div>
 
             </div>
 
-            {/* Table */}
+            {/* Desktop Table */}
 
-            <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="hidden md:block overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
 
-                <div className="w-full overflow-x-auto">
+                <div className="overflow-x-auto">
+                    <div className="min-w-[900px]">
+                        <table className="w-full">
 
-                    <table className="min-w-[950px] w-full">
+                            <thead className="bg-slate-50 border-b">
 
-                        <thead className="border-b bg-slate-50">
+                                <tr>
 
-                            <tr>
+                                    <th className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-gray-600 whitespace-nowrap">
+                                        Employee
+                                    </th>
 
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                                    Employee
-                                </th>
+                                    <th className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-gray-600 whitespace-nowrap">
+                                        Date
+                                    </th>
 
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                                    Date
-                                </th>
+                                    <th className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-gray-600 whitespace-nowrap">
+                                        Check In
+                                    </th>
 
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                                    Check In
-                                </th>
+                                    <th className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-gray-600 whitespace-nowrap">
+                                        Status
+                                    </th>
 
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                                    Status
-                                </th>
+                                    <th className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-gray-600 whitespace-nowrap">
+                                        Location
+                                    </th>
 
-                                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                                    Location
-                                </th>
+                                    <th className="px-4 py-4 text-left text-sm font-semibold text-gray-600 whitespace-nowrap">
+                                        Photo
+                                    </th>
 
-                                <th className="px-6 py-4 text-center text-sm font-semibold text-slate-600">
-                                    Photo
-                                </th>
+                                </tr>
 
-                            </tr>
+                            </thead>
 
-                        </thead>
-                        <tbody>
+                            <tbody>
 
-                            {filteredAttendance.map((employee) => (
+                                {filteredAttendance.map((employee) => (
 
-                                <tr
-                                    key={employee._id}
-                                    className="border-b last:border-0 transition hover:bg-slate-50"
-                                >
+                                    <tr
+                                        key={employee._id}
+                                        className="border-b last:border-0 hover:bg-slate-50 transition"
+                                    >
 
-                                    <td className="px-6 py-5">
+                                        {/* Employee */}
 
-                                        <div className="flex items-center gap-4">
+                                        <td className="px-4 py-4 whitespace-nowrap">
 
-                                            <Image
-                                                src={employee.photo}
-                                                alt={employee.employeeName}
-                                                width={55}
-                                                height={55}
-                                                className="rounded-full border object-cover"
-                                            />
+                                            <div className="flex items-center gap-4">
 
-                                            <div>
+                                                <Image
+                                                    src={employee.photo}
+                                                    alt={employee.employeeName}
+                                                    width={55}
+                                                    height={55}
+                                                    className="rounded-full border object-cover"
+                                                />
 
-                                                <h3 className="font-semibold text-slate-800">
-                                                    {employee.employeeName}
-                                                </h3>
+                                                <div className="max-w-[220px]">
 
-                                                <p className="text-sm text-gray-500">
-                                                    {employee.email}
-                                                </p>
+                                                    <h3 className="font-semibold text-slate-800">
+                                                        {employee.employeeName}
+                                                    </h3>
 
-                                                <p className="text-xs text-blue-600">
-                                                    #{employee.employeeId}
-                                                </p>
+                                                    <p className="truncate text-sm text-slate-500">
+                                                        {employee.email}
+                                                    </p>
+
+                                                    <p className="text-xs font-medium text-blue-600">
+                                                        {employee.employeeId}
+                                                    </p>
+
+                                                </div>
 
                                             </div>
 
-                                        </div>
+                                        </td>
 
-                                    </td>
+                                        {/* Date */}
 
-                                    <td className="px-6 py-5">
+                                        <td className="px-4 py-4 whitespace-nowrap">
 
-                                        <div className="flex items-center gap-2 text-gray-700">
+                                            <div className="flex items-center gap-2 text-slate-700">
 
-                                            <CalendarDays size={16} />
+                                                <CalendarDays size={16} />
 
-                                            {employee.date}
+                                                {employee.date}
 
-                                        </div>
+                                            </div>
 
-                                    </td>
+                                        </td>
 
-                                    <td className="px-6 py-5 font-medium text-slate-700">
+                                        {/* Check In */}
 
-                                        {employee.checkIn}
+                                        <td className="px-4 py-4 whitespace-nowrap">
+                                            {employee.checkIn}
+                                        </td>
 
-                                    </td>
+                                        {/* Status */}
 
-                                    <td className="px-6 py-5">
+                                        <td className="px-4 py-4 whitespace-nowrap">
 
-                                        <span
-                                            className={`rounded-full px-4 py-2 text-xs font-semibold
-                                                    ${employee.status === "Present"
+                                            <span
+                                                className={`rounded-full px-4 py-2 text-xs font-semibold ${employee.status === "Present"
                                                     ? "bg-green-100 text-green-700"
                                                     : employee.status === "Late"
                                                         ? "bg-orange-100 text-orange-700"
                                                         : "bg-red-100 text-red-700"
-                                                }`}
-                                        >
+                                                    }`}
+                                            >
+                                                {employee.status}
+                                            </span>
 
-                                            {employee.status}
+                                        </td>
 
-                                        </span>
+                                        {/* Location */}
 
-                                    </td>
+                                        <td className="px-4 py-4 whitespace-nowrap">
 
-                                    <td className="px-6 py-5">
+                                            <a
+                                                href={employee.locationLink}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-2 whitespace-nowrap rounded-lg bg-blue-600 px-4 py-2 font-medium  hover:bg-blue-300 transition" 
+                                            >
 
-                                        <a
-                                            href={employee.locationLink}
-                                            target="_blank"
-                                            className="inline-flex items-center gap-2 rounded-lg bg-blue-50 px-4 py-2 font-medium text-blue-600 transition hover:bg-blue-100"
-                                        >
+                                                <MapPinned size={16} />
 
-                                            <MapPinned size={16} />
+                                                View Map
 
-                                            View Map
+                                            </a>
 
-                                        </a>
+                                        </td>
 
-                                    </td>
+                                        {/* Photo */}
 
-                                    <td className="px-6 py-5 text-center">
+                                        <td className="px-4 py-4 whitespace-nowrap">
 
-                                        <button
-                                            className="rounded-lg bg-slate-100 p-3 transition hover:bg-slate-200"
-                                        >
+                                            <button
+                                                onClick={() => window.open(employee.photo)}
+                                                className="cursor-pointer inline-flex items-center justify-center rounded-lg bg-blue-600 p-3 hover:bg-blue-300 transition"
+                                            >
 
-                                            <Eye size={18} />
+                                                <Eye size={18} />
 
-                                        </button>
+                                            </button>
 
-                                    </td>
+                                        </td>
 
-                                </tr>
+                                    </tr>
 
-                            ))}
+                                ))}
 
-                        </tbody>
+                            </tbody>
 
-                    </table>
-
+                        </table>
+                    </div>
                 </div>
+            </div>
+            {/* Mobile Cards */}
 
+            <div className="space-y-4 md:hidden">
+                {filteredAttendance.map((employee) => (
+
+                    <div
+                        key={employee._id}
+                        className="rounded-2xl border border-gray-200 bg-white shadow-sm"
+                    >
+
+                        <div className="flex items-center justify-between border-b p-4">
+
+                            <div className="flex items-center gap-3">
+
+                                <Image
+                                    src={employee.photo}
+                                    alt={employee.employeeName}
+                                    width={50}
+                                    height={50}
+                                    className="rounded-full border"
+                                />
+
+                                <div>
+
+                                    <h3 className="font-semibold">
+                                        {employee.employeeName}
+                                    </h3>
+
+                                    <p className="text-sm text-gray-500">
+                                        {employee.email}
+                                    </p>
+
+                                    <p className="text-xs text-blue-600">
+                                        {employee.employeeId}
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <button
+                                onClick={() => window.open(employee.photo)}
+                                className="inline-flex items-center justify-center rounded-lg bg-blue-600 p-3 hover:bg-blue-300 transition"
+                            >
+                                <Eye size={18} />
+                            </button>
+
+                        </div>
+
+                        <div className="divide-y">
+
+                            <div className="flex justify-between p-4">
+
+                                <span className="text-gray-500">
+                                    Date
+                                </span>
+
+                                <span>
+                                    {employee.date}
+                                </span>
+
+                            </div>
+
+                            <div className="flex justify-between p-4">
+
+                                <span className="text-gray-500">
+                                    Check In
+                                </span>
+
+                                <span>
+                                    {employee.checkIn}
+                                </span>
+
+                            </div>
+
+                            <div className="flex items-center justify-between p-4">
+
+                                <span className="text-gray-500">
+                                    Status
+                                </span>
+
+                                <span
+                                    className={`rounded-full px-3 py-1 text-xs font-semibold ${employee.status === "Present"
+                                        ? "bg-green-100 text-green-700"
+                                        : employee.status === "Late"
+                                            ? "bg-orange-100 text-orange-700"
+                                            : "bg-red-100 text-red-700"
+                                        }`}
+                                >
+                                    {employee.status}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div className="p-4">
+
+                            <a
+                                href={employee.locationLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 hover:bg-blue-300 transition"
+                            >
+
+                                <MapPinned size={18} />
+
+                                View Map
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                ))}
             </div>
 
         </div>
-
     );
 }

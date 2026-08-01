@@ -136,132 +136,231 @@ export default function EmployeeTable({
     );
 
     return (
-        <div className="overflow-hidden rounded-xl bg-white shadow">
-            <table className="w-full table-auto border-collapse">
-                <thead>
-                    <tr className="border-b bg-gray-50">
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Name</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Email</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Role</th>
-                        <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
-                            Status
-                        </th>
-                        <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">
-                            Actions
-                        </th>
-                    </tr>
-                </thead>
 
-                <tbody>
-                    {filteredUsers.length === 0 ? (
-                        <tr>
-                            <td
-                                colSpan={6}
-                                className="px-6 py-3 align-middle"
+
+        <div className="rounded-xl bg-white shadow">
+            {/* Mobile Cards */}
+
+            <div className="block lg:hidden space-y-4 p-4">
+
+                {paginatedUsers.map((user) => (
+
+                    <div
+                        key={user._id}
+                        className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
+                    >
+
+                        <div className="flex items-center gap-3">
+
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 font-semibold text-blue-600">
+                                {user.name.charAt(0).toUpperCase()}
+                            </div>
+
+                            <div>
+
+                                <h3 className="font-semibold text-slate-800">
+                                    {user.name}
+                                </h3>
+
+                                <p className="text-sm text-gray-500">
+                                    {user.employeeId}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div className="mt-4 space-y-2">
+
+                            <p className="text-sm text-gray-600">
+                                <span className="font-semibold">
+                                    Email:
+                                </span>{" "}
+                                {user.email}
+                            </p>
+
+                            <p className="text-sm">
+                                <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+                                    {user.role}
+                                </span>
+                            </p>
+
+                        </div>
+
+                        <div className="mt-4 flex items-center justify-between">
+
+                            <button
+                                onClick={() => handleToggleStatus(user._id)}
+                                className={`relative h-5 w-9 rounded-full transition ${user.isActive
+                                        ? "bg-green-500"
+                                        : "bg-gray-300"
+                                    }`}
                             >
-                                No employees found.
-                            </td>
+
+                                <span
+                                    className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition ${user.isActive
+                                            ? "left-5"
+                                            : "left-0.5"
+                                        }`}
+                                />
+
+                            </button>
+
+                            <div className="flex gap-2">
+
+                                <button
+                                    onClick={() => onEdit(user)}
+                                    className="rounded-lg bg-blue-50 p-2 text-blue-600 hover:bg-blue-600 hover:text-white transition"
+                                >
+                                    <Pencil size={18} />
+                                </button>
+
+                                <button
+                                    onClick={() => {
+                                        setDeleteId(user._id);
+                                        setDeleteOpen(true);
+                                    }}
+                                    className="rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-600 hover:text-white transition"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                ))}
+
+            </div>
+            <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full table-auto border-collapse">
+                    <thead>
+                        <tr className="border-b bg-gray-50">
+                            <th className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-gray-600 whitespace-nowrap">Name</th>
+                            <th className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-gray-600 whitespace-nowrap">Email</th>
+                            <th className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-gray-600 whitespace-nowrap">Role</th>
+                            <th className="px-4 md:px-6 py-4 text-center text-sm font-semibold text-gray-600 whitespace-nowrap">
+                                Status
+                            </th>
+                            <th className="px-4 md:px-6 py-4 text-center text-sm font-semibold text-gray-600 whitespace-nowrap">
+                                Actions
+                            </th>
                         </tr>
-                    ) : (
-                        paginatedUsers.map((user) => (
-                            <tr
-                                key={user._id}
-                                className="border-t transition-colors hover:bg-blue-50/40"
-                            >
-                                <td className="px-6 py-3 align-middle">
-                                    <div className="flex items-center gap-3">
+                    </thead>
 
-                                        <div
-                                            className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold"
-                                            style={{
-                                                backgroundColor: "#DBEAFE",
-                                                color: "#2563EB",
-                                            }}
-                                        >
-                                            {user.name.charAt(0).toUpperCase()}
-                                        </div>
-
-                                        <div className="leading-tight">
-                                            <p className="font-medium text-gray-900">
-                                                {user.name}
-                                            </p>
-
-                                            <span className="text-xs text-gray-500">
-                                                {user.employeeId}
-                                            </span>
-                                        </div>
-
-                                    </div>
-                                </td>
-                                <td className="px-6 py-3 align-middle">{user.email}</td>
-
-                                <td className="px-6 py-3 align-middle">
-                                    <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
-                                        {user.role}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-3 text-center align-middle">
-                                    <button
-                                        onClick={() => handleToggleStatus(user._id)}
-                                        className={`relative h-5 w-9 cursor-pointer rounded-full shadow-inner transition-all duration-300  ${user.isActive
-                                            ? "bg-green-500"
-                                            : "bg-gray-300"
-                                            }`}
-                                    >
-                                        <span
-                                            className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-md transition-all duration-300 ${user.isActive
-                                                ? "left-5"
-                                                : "left-0.5"
-                                                }`}
-                                        />
-                                    </button>
-                                </td>
-                                <td className="px-6 py-3 align-middle">
-                                    <div className="flex items-center justify-center gap-3">
-
-                                        <button
-                                            onClick={() => onEdit(user)}
-                                            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-600 hover:text-white hover:shadow-lg hover:shadow-blue-200"
-                                        >
-                                            <Pencil size={16} />
-                                        </button>
-
-                                        <button
-                                            onClick={() => {
-                                                setDeleteId(user._id);
-                                                setDeleteOpen(true);
-                                            }}
-                                            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-red-50 text-red-600 transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-600 hover:text-white hover:shadow-lg hover:shadow-red-200"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-
-                                    </div>
+                    <tbody>
+                        {filteredUsers.length === 0 ? (
+                            <tr>
+                                <td
+                                    colSpan={6}
+                                    className="px-4 md:px-6 py-4"
+                                >
+                                    No employees found.
                                 </td>
                             </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
+                        ) : (
+                            paginatedUsers.map((user) => (
+                                <tr
+                                    key={user._id}
+                                    className="border-t transition-colors hover:bg-blue-50/40"
+                                >
+                                    <td className="px-4 md:px-6 py-4">
+                                        <div className="flex items-center gap-3">
+
+                                            <div
+                                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+                                                style={{
+                                                    backgroundColor: "#DBEAFE",
+                                                    color: "#2563EB",
+                                                }}
+                                            >
+                                                {user.name.charAt(0).toUpperCase()}
+                                            </div>
+
+                                            <div className="leading-tight">
+                                                <p className="font-medium text-gray-900 whitespace-nowrap">
+                                                    {user.name}
+                                                </p>
+
+                                                <span className="text-xs text-gray-500">
+                                                    {user.employeeId}
+                                                </span>
+                                            </div>
+
+                                        </div>
+                                    </td>
+                                    <td className="px-4 md:px-6 py-4 text-sm text-gray-600 whitespace-nowrap">{user.email}</td>
+
+                                    <td className="px-4 md:px-6 py-4">
+                                        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+                                            {user.role}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 md:px-6 py-4 text-center">
+                                        <button
+                                            onClick={() => handleToggleStatus(user._id)}
+                                            className={`relative h-5 w-9 cursor-pointer rounded-full shadow-inner transition-all duration-300  ${user.isActive
+                                                ? "bg-green-500"
+                                                : "bg-gray-300"
+                                                }`}
+                                        >
+                                            <span
+                                                className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-md transition-all duration-300 ${user.isActive
+                                                    ? "left-5"
+                                                    : "left-0.5"
+                                                    }`}
+                                            />
+                                        </button>
+                                    </td>
+                                    <td className="px-4 md:px-6 py-4">
+                                        <div className="flex items-center justify-center gap-3">
+
+                                            <button
+                                                onClick={() => onEdit(user)}
+                                                className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-600 hover:text-white hover:shadow-lg hover:shadow-blue-200"
+                                            >
+                                                <Pencil size={16} />
+                                            </button>
+
+                                            <button
+                                                onClick={() => {
+                                                    setDeleteId(user._id);
+                                                    setDeleteOpen(true);
+                                                }}
+                                                className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-red-50 text-red-600 transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-600 hover:text-white hover:shadow-lg hover:shadow-red-200"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
 
-            <div className="flex items-center justify-between border-t px-6 py-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t px-4 md:px-6 py-4">
                 <p className="text-sm text-gray-500">
                     Page {currentPage} of {totalPages}
                 </p>
 
-                <div className="flex gap-2">
+                <div className="flex w-full sm:w-auto gap-2">
                     <button
                         onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
-                        className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-300 disabled:hover:bg-white disabled:hover:text-gray-700"
+                        className="flex-1 sm:flex-none cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-300 disabled:hover:bg-white disabled:hover:text-gray-700"
                     >
                         Previous
                     </button>
                     <button
                         onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                         disabled={currentPage === totalPages}
-                        className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-300 disabled:hover:bg-white disabled:hover:text-gray-700"
+                        className="flex-1 sm:flex-none cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-300 disabled:hover:bg-white disabled:hover:text-gray-700"
                     >
                         Next
                     </button>
@@ -277,6 +376,7 @@ export default function EmployeeTable({
                 onConfirm={handleDelete}
                 loading={deleteLoading}
             />
+
         </div>
     );
 }

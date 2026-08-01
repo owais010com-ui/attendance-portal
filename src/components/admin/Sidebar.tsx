@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { usePathname } from "next/navigation";
 import {
     LayoutDashboard,
@@ -10,6 +11,7 @@ import {
     Settings,
     LogOut,
 } from "lucide-react";
+
 
 const menuItems = [
     {
@@ -39,19 +41,48 @@ const menuItems = [
     },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({
+
+    collapsed,
+    setCollapsed,
+}: {
+    collapsed: boolean;
+    setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
     const pathname = usePathname();
 
     return (
-        <aside className="w-56 bg-white border-r border-gray-200 min-h-screen flex flex-col">
+        <aside
+            className={`hidden md:flex md:flex-col fixed left-0 top-0 h-screen border-r border-gray-200 bg-white transition-all duration-300 ${collapsed ? "w-20" : "w-56"
+                }`}
+        >
+            <div
+                className={`flex h-20 items-center border-b px-4 ${collapsed ? "justify-center" : ""
+                    }`}
+            >
 
-            <div className="h-20 flex items-center justify-center border-b">
-                <h1 className="text-2xl font-bold text-blue-600">
-                    Attendance
-                </h1>
+                <button
+                    onClick={() => setCollapsed(!collapsed)}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-gray-100"
+                >
+                    {collapsed ? (
+                        <PanelLeftOpen size={22} />
+                    ) : (
+                        <PanelLeftClose size={22} />
+                    )}
+                </button>
+
+                {!collapsed && (
+                    <h1 className="ml-3 text-2xl font-bold text-blue-600">
+                        Attendance
+                    </h1>
+                )}
+
             </div>
-
-            <nav className="flex-1 px-4 py-6 space-y-2">
+            <nav
+                className={`flex-1 py-6 space-y-2 ${collapsed ? "px-2" : "px-4"
+                    }`}
+            >
                 {menuItems.map((item) => {
                     const Icon = item.icon;
 
@@ -61,26 +92,43 @@ export default function Sidebar() {
                         <Link
                             key={item.href}
                             href={item.href}
-                            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all
-                                   ${active
-                                    ? "bg-blue-600 text-white"
-                                    : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                            className={`flex-row flex items-center h-10 rounded-xl transition-all duration-300 ${active
+                                ? "bg-blue-600 text-white"
+                                : "text-gray-700 hover:bg-gray-100"
+                                } ${collapsed
+                                    ? "justify-center"
+                                    : "px-3 gap-3"
                                 }`}
                         >
-                            <Icon size={20} />
-                            {item.title}
+                            <Icon className="h-5 w-5" />
+
+                            {!collapsed && (
+                                <span className="text-sm font-medium">
+                                    {item.title}
+                                </span>
+                            )}
                         </Link>
                     );
                 })}
             </nav>
 
-            <div className="border-t p-4">
+            <div className="p-4">
+
                 <button
-                    className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-600 hover:bg-red-50 transition"
+                    className={`flex w-full items-center rounded-xl py-3 text-red-600 hover:bg-red-50 ${collapsed
+                        ? "justify-center"
+                        : "gap-3 px-4"
+                        }`}
                 >
+
                     <LogOut size={20} />
-                    Logout
+
+                    {!collapsed && (
+                        <span>Logout</span>
+                    )}
+
                 </button>
+
             </div>
 
         </aside>
