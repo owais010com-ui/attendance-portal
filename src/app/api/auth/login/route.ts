@@ -11,20 +11,39 @@ export async function POST(req: Request) {
 
         const { email, password } = await req.json();
 
+        if (!email || !password) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Email and Password are required",
+                },
+                { status: 400 }
+            );
+        }
+
         const user = await User.findOne({ email });
 
         if (!user) {
             return NextResponse.json(
-                { message: "Invalid email or password" },
+                {
+                    success: false,
+                    message: "Invalid Email or Password",
+                },
                 { status: 401 }
             );
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(
+            password,
+            user.password
+        );
 
         if (!isMatch) {
             return NextResponse.json(
-                { message: "Invalid email or password" },
+                {
+                    success: false,
+                    message: "Invalid Email or Password",
+                },
                 { status: 401 }
             );
         }
@@ -35,7 +54,8 @@ export async function POST(req: Request) {
         });
 
         const response = NextResponse.json({
-            message: "Login successful",
+            success: true,
+            message: "Login Successful",
             user: {
                 id: user._id,
                 name: user.name,
@@ -48,18 +68,22 @@ export async function POST(req: Request) {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
-            maxAge: 60 * 60 * 24 * 7,
             path: "/",
+            maxAge: 60 * 60 * 24 * 7,
         });
 
         return response;
-        
     } catch (error) {
-        console.error(error);
+        console.log(error);
 
         return NextResponse.json(
-            { message: "Internal Server Error" },
-            { status: 500 }
+            {
+                success: false,
+                message: "Internal Server Error",
+            },
+            {
+                status: 500,
+            }
         );
     }
 }

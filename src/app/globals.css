@@ -255,3 +255,13 @@ a {
     transform: translateY(-25px) scale(.95);
   }
 }
+
+/* scroooollllll */
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scrollbar-width: none;
+}

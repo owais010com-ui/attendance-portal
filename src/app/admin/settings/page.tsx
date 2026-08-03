@@ -13,6 +13,10 @@ export default function SettingsPage() {
     const [companyName, setCompanyName] = useState("");
     const [companyEmail, setCompanyEmail] = useState("");
     const [companyAddress, setCompanyAddress] = useState("");
+    const [officeStart, setOfficeStart] = useState("");
+    const [officeEnd, setOfficeEnd] = useState("");
+    const [lateAfter, setLateAfter] = useState(10);
+    const [workingHours, setWorkingHours] = useState(8);
 
     useEffect(() => {
         async function getSettings() {
@@ -27,6 +31,11 @@ export default function SettingsPage() {
                     setCompanyName(data.settings.companyName || "");
                     setCompanyEmail(data.settings.companyEmail || "");
                     setCompanyAddress(data.settings.companyAddress || "");
+                    setOfficeStart(data.settings.officeStart || "09:00");
+                    setOfficeEnd(data.settings.officeEnd || "18:00");
+                    setLateAfter(data.settings.lateAfter || 10);
+                    setWorkingHours(data.settings.workingHours || 8);
+
                 }
             } catch (error) {
                 console.log(error);
@@ -78,6 +87,30 @@ export default function SettingsPage() {
 
             if (data.success) {
                 alert("Company Information Updated");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    const saveAttendanceRules = async () => {
+        try {
+            const res = await fetch("/api/settings", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    officeStart,
+                    officeEnd,
+                    lateAfter,
+                    workingHours,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                alert("Attendance Rules Updated");
             }
         } catch (error) {
             console.log(error);
@@ -452,6 +485,8 @@ export default function SettingsPage() {
 
                                 <input
                                     type="time"
+                                    value={officeStart}
+                                    onChange={(e) => setOfficeStart(e.target.value)}
                                     className="h-11 w-full rounded-xl border border-gray-300 px-4 outline-none transition focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
                                 />
                             </div>
@@ -463,6 +498,8 @@ export default function SettingsPage() {
 
                                 <input
                                     type="time"
+                                    value={officeEnd}
+                                    onChange={(e) => setOfficeEnd(e.target.value)}
                                     className="h-11 w-full rounded-xl border border-gray-300 px-4 outline-none transition focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
                                 />
                             </div>
@@ -474,7 +511,8 @@ export default function SettingsPage() {
 
                                 <input
                                     type="number"
-                                    placeholder="10"
+                                    value={lateAfter}
+                                    onChange={(e) => setLateAfter(Number(e.target.value))}
                                     className="h-11 w-full rounded-xl border border-gray-300 px-4 outline-none transition focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
                                 />
                             </div>
@@ -486,12 +524,15 @@ export default function SettingsPage() {
 
                                 <input
                                     type="number"
-                                    placeholder="8"
+                                    value={workingHours}
+                                    onChange={(e) => setWorkingHours(Number(e.target.value))}
                                     className="h-11 w-full rounded-xl border border-gray-300 px-4 outline-none transition focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
                                 />
                             </div>
 
-                            <button className="h-11 rounded-xl bg-purple-600 px-5 text-sm font-medium text-white transition hover:bg-purple-700">
+                            <button
+                                onClick={saveAttendanceRules}
+                                className="h-11 rounded-xl bg-purple-600 px-5 text-sm font-medium text-white transition hover:bg-purple-700">
                                 Save Rules
                             </button>
 

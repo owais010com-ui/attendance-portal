@@ -32,26 +32,45 @@ interface Attendance {
 
 export default function AdminAttendancePage() {
     const [attendance, setAttendance] = useState<Attendance[]>([]);
+    const [selectedDate, setSelectedDate] = useState("");
+    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
 
     useEffect(() => {
         async function getAttendance() {
-            const res = await fetch("/api/attendance");
-            const data = await res.json();
+            try {
+                const res = await fetch("/api/attendance", {
+                    cache: "no-store",
+                });
 
-            if (data.success) {
-                setAttendance(data.attendance);
+                const data = await res.json();
+
+                if (data.success) {
+                    setAttendance(data.attendance);
+                }
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoading(false);
             }
         }
 
         getAttendance();
     }, []);
 
-    const filteredAttendance = attendance.filter((employee) =>
-        employee.employeeName
-            .toLowerCase()
-            .includes(search.toLowerCase())
-    );
+    const filteredAttendance = attendance.filter((employee) => {
+        const value = search.toLowerCase();
+
+        const matchesSearch =
+            employee.employeeName.toLowerCase().includes(value) ||
+            employee.email.toLowerCase().includes(value) ||
+            employee.employeeId.toLowerCase().includes(value);
+
+        const matchesDate =
+            selectedDate === "" || employee.date === selectedDate;
+
+        return matchesSearch && matchesDate;
+    });
 
     const totalEmployees = attendance.length;
 
@@ -62,6 +81,21 @@ export default function AdminAttendancePage() {
     const absentEmployees = 0;
     const lateEmployees = 0;
 
+    if (loading) {
+        return (
+            <div className="rounded-2xl bg-white p-10 text-center">
+                Loading attendance...
+            </div>
+        );
+    }
+
+    if (!filteredAttendance.length) {
+        return (
+            <div className="rounded-2xl bg-white p-10 text-center">
+                No attendance found.
+            </div>
+        );
+    }
     return (
         <div className="space-y-6">
 
@@ -179,24 +213,49 @@ export default function AdminAttendancePage() {
                     Attendance Records
                 </h2>
 
-                <div className="relative w-full md:w-80">
+                <div className="flex flex-col gap-3 md:flex-row">
 
-                    <Search
-                        size={18}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                    />
+                    {/* Search */}
 
-                    <input
-                        type="text"
-                        placeholder="Search employee..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-11 pr-4 shadow-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                    />
+                    <div className="relative w-full md:w-80">
+
+                        <Search
+                            size={18}
+                            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="Search employee..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-11 pr-4 shadow-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                        />
+
+                    </div>
+
+                    {/* Date */}
+
+                    <div className="relative">
+
+                        <CalendarDays
+                            size={18}
+                            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                        />
+
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="h-11 rounded-xl border border-gray-200 bg-white pl-11 pr-4 shadow-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                        />
+
+                    </div>
 
                 </div>
-
             </div>
+
+
 
             {/* Desktop Table */}
 
@@ -326,7 +385,7 @@ export default function AdminAttendancePage() {
                                                 href={employee.locationLink}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex items-center gap-2 whitespace-nowrap rounded-lg bg-blue-600 px-4 py-2 font-medium  hover:bg-blue-300 transition" 
+                                                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-medium !text-white hover:bg-blue-700 transition"
                                             >
 
                                                 <MapPinned size={16} />
@@ -342,8 +401,8 @@ export default function AdminAttendancePage() {
                                         <td className="px-4 py-4 whitespace-nowrap">
 
                                             <button
-                                                onClick={() => window.open(employee.photo)}
-                                                className="cursor-pointer inline-flex items-center justify-center rounded-lg bg-blue-600 p-3 hover:bg-blue-300 transition"
+                                                onClick={() => window.open(employee.photo, "_blank")}
+                                                className="cursor-pointer inline-flex items-center justify-center rounded-lg bg-blue-600 p-3 text-white hover:bg-blue-300 transition"
                                             >
 
                                                 <Eye size={18} />
@@ -403,8 +462,8 @@ export default function AdminAttendancePage() {
                             </div>
 
                             <button
-                                onClick={() => window.open(employee.photo)}
-                                className="inline-flex items-center justify-center rounded-lg bg-blue-600 p-3 hover:bg-blue-300 transition"
+                                onClick={() => window.open(employee.photo, "_blank")}
+                                className="inline-flex items-center justify-center rounded-lg bg-blue-600 p-3 text-white hover:bg-blue-300 transition"
                             >
                                 <Eye size={18} />
                             </button>
@@ -464,7 +523,7 @@ export default function AdminAttendancePage() {
                                 href={employee.locationLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 hover:bg-blue-300 transition"
+                                className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 !text-white hover:bg-blue-300 transition"
                             >
 
                                 <MapPinned size={18} />

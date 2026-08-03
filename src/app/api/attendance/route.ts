@@ -23,8 +23,8 @@ export async function POST(req: Request) {
             !employeeName ||
             !email ||
             !photo ||
-            !latitude ||
-            !longitude ||
+            latitude == null ||
+            longitude == null ||
             !locationLink ||
             !checkIn ||
             !date
@@ -89,9 +89,9 @@ export async function GET() {
     try {
         await connectDB();
 
-        const attendance = await Attendance.find().sort({
-            createdAt: -1,
-        });
+        const attendance = await Attendance.find()
+            .sort({ createdAt: -1 })
+            .limit(50);
 
         return Response.json({
             success: true,

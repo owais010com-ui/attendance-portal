@@ -16,6 +16,15 @@ export default function EmployeeAttendancePage() {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+    interface User {
+        employeeId: string;
+        name: string;
+        email: string;
+    }
+
+    const [user, setUser] = useState<User | null>(null);
+
+
 
     function dataURLtoBlob(dataUrl: string) {
         const arr = dataUrl.split(",");
@@ -112,7 +121,27 @@ export default function EmployeeAttendancePage() {
     }
 
     useEffect(() => {
+
+        async function getCurrentUser() {
+            try {
+                const res = await fetch("/api/auth/me", {
+                    cache: "no-store",
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    setUser(data.user);
+                }
+
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
         startCamera();
+
+        getCurrentUser();
 
         const videoElement = videoRef.current;
 
@@ -123,9 +152,16 @@ export default function EmployeeAttendancePage() {
                 mediaStream.getTracks().forEach((track) => track.stop());
             }
         };
+
     }, []);
 
     async function handleAttendance() {
+
+        if (!user) {
+            alert("User data is loading. Please try again.");
+            return;
+        }
+
         if (!captured) {
             alert("Please capture your photo.");
             return;
@@ -142,18 +178,24 @@ export default function EmployeeAttendancePage() {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
 
+                    console.log("Latitude:", lat);
+                    console.log("Longitude:", lng);
+                    console.log("Accuracy:", position.coords.accuracy);
+
                     setLatitude(lat);
                     setLongitude(lng);
 
                     const mapLink = `https://www.google.com/maps?q=${lat},${lng}`;
                     setLocationLink(mapLink);
 
+                    console.log("Google Maps:", mapLink);
+
                     const uploadedImage = await handleImageUpload();
 
                     const attendanceData = {
-                        employeeId: "EMP001",
-                        employeeName: "Owais Ahmed",
-                        email: "owais@example.com",
+                        employeeId: user.employeeId,
+                        employeeName: user.name,
+                        email: user.email,
 
                         photo: uploadedImage,
 
@@ -188,6 +230,11 @@ export default function EmployeeAttendancePage() {
             },
             () => {
                 alert("Please allow location access.");
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0,
             }
         );
     }
