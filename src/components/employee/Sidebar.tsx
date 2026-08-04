@@ -4,6 +4,7 @@ import Link from "next/link";
 import { KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { usePathname, useRouter } from "next/navigation";
+import LogoutModal from "./LogoutModal";
 import {
     PanelLeftClose,
     PanelLeftOpen,
@@ -15,6 +16,7 @@ import {
     Settings,
     LogOut,
 } from "lucide-react";
+import { useState } from "react";
 
 const menuItems = [
     {
@@ -65,7 +67,13 @@ export default function Sidebar({
 
     const router = useRouter();
 
+    const [logoutModal, setLogoutModal] = useState(false);
+    const [logoutLoading, setLogoutLoading] = useState(false);
+
     async function handleLogout() {
+        setLogoutLoading(true);
+        setLogoutModal(false);
+
         try {
             const res = await fetch("/api/auth/logout", {
                 method: "POST",
@@ -85,8 +93,10 @@ export default function Sidebar({
             console.log(error);
             toast.error("Something went wrong");
         }
+        finally {
+            setLogoutLoading(false);
+        }
     }
-
 
     return (
         <aside
@@ -150,19 +160,22 @@ export default function Sidebar({
 
             <div className="p-4">
                 <button
-                    onClick={handleLogout}
-                    className={`flex w-full cursor-pointer items-center rounded-xl py-3 text-red-600 transition hover:bg-red-50 ${collapsed
-                        ? "justify-center"
-                        : "gap-3 px-4"
+                    onClick={() => setLogoutModal(true)}
+                    className={`flex w-full cursor-pointer items-center rounded-xl py-3 text-red-600 transition hover:bg-red-50 ${collapsed ? "justify-center" : "gap-3 px-4"
                         }`}
                 >
                     <LogOut size={20} />
 
-                    {!collapsed && (
-                        <span>Logout</span>
-                    )}
+                    {!collapsed && <span>Logout</span>}
                 </button>
             </div>
+
+            <LogoutModal
+                isOpen={logoutModal}
+                onClose={() => setLogoutModal(false)}
+                onConfirm={handleLogout}
+                loading={logoutLoading}
+            />
         </aside>
     );
 }
