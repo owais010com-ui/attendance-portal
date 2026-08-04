@@ -78,15 +78,15 @@ export default function DashboardCards({
                 return (
                     <div
                         key={card.title}
-                        className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                        className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300"
                     >
                         <div className="flex items-center justify-between">
 
                             <div>
 
-                                    <p className="text-sm text-gray-500">
-                                        {card.title}
-                                    </p>
+                                <p className="text-sm text-gray-500">
+                                    {card.title}
+                                </p>
 
                                 <h2 className="mt-2 text-3xl font-bold text-gray-900">
                                     {card.value}

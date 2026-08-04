@@ -11,8 +11,6 @@ import {
     LayoutDashboard,
     ClipboardCheck,
     User,
-    CalendarDays,
-    Bell,
     Settings,
     LogOut,
 } from "lucide-react";
@@ -33,16 +31,6 @@ const menuItems = [
         title: "My Profile",
         href: "/employee/profile",
         icon: User,
-    },
-    {
-        title: "Leave",
-        href: "/employee/leave",
-        icon: CalendarDays,
-    },
-    {
-        title: "Notifications",
-        href: "/employee/notifications",
-        icon: Bell,
     },
     {
         title: "Settings",

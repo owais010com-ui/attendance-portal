@@ -26,15 +26,27 @@ export async function PUT(req: NextRequest) {
             id: string;
         };
 
-        const { name, email } = await req.json();
+        const {
+            name,
+            email,
+            phone,
+            address,
+        } = await req.json();
 
-        if (!name || !email) {
+        if (
+            !name ||
+            !email ||
+            !phone ||
+            !address
+        ) {
             return NextResponse.json(
                 {
                     success: false,
                     message: "All fields are required.",
                 },
-                { status: 400 }
+                {
+                    status: 400,
+                }
             );
         }
 
@@ -58,6 +70,8 @@ export async function PUT(req: NextRequest) {
             {
                 name,
                 email,
+                phone,
+                address,
             },
             {
                 new: true,

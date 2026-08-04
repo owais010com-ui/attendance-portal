@@ -7,6 +7,8 @@ interface User {
     email: string;
     employeeId: string;
     role: string;
+    phone: string;
+    address: string;
 }
 
 export default function EditProfilePage() {
@@ -19,8 +21,9 @@ export default function EditProfilePage() {
         email: "",
         employeeId: "",
         role: "",
+        phone: "",
+        address: "",
     });
-
     useEffect(() => {
 
         async function getUser() {
@@ -57,6 +60,8 @@ export default function EditProfilePage() {
             body: JSON.stringify({
                 name: form.name,
                 email: form.email,
+                phone: form.phone,
+                address: form.address,
             }),
         });
 
@@ -149,6 +154,46 @@ export default function EditProfilePage() {
                         />
 
                     </div>
+                    <div>
+
+                        <label className="mb-2 block font-medium">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="text"
+                            value={form.phone}
+                            onChange={(e) =>
+                                setForm({
+                                    ...form,
+                                    phone: e.target.value,
+                                })
+                            }
+                            placeholder="+92 300 1234567"
+                            className="h-12 w-full rounded-xl border px-4 outline-none focus:border-blue-600"
+                        />
+
+                    </div>
+                    <div>
+
+                        <label className="mb-2 block font-medium">
+                            Address
+                        </label>
+
+                        <input
+                            type="text"
+                            value={form.address}
+                            onChange={(e) =>
+                                setForm({
+                                    ...form,
+                                    address: e.target.value,
+                                })
+                            }
+                            placeholder="Karachi, Pakistan"
+                            className="h-12 w-full rounded-xl border px-4 outline-none focus:border-blue-600"
+                        />
+
+                    </div>
 
                     <div>
 
@@ -182,7 +227,7 @@ export default function EditProfilePage() {
 
                 <button
                     disabled={saving}
-                    className="mt-8 w-full rounded-xl bg-blue-600 py-3 font-semibold text-white hover:bg-blue-700"
+                    className="cursor-pointer mt-8 w-full rounded-xl bg-blue-600 py-3 font-semibold text-white hover:bg-blue-700"
                 >
                     {saving ? "Saving..." : "Save Changes"}
                 </button>

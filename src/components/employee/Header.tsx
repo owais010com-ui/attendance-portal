@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell } from "lucide-react";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+
 
 interface User {
     name: string;
@@ -10,6 +10,9 @@ interface User {
 }
 
 export default function Header() {
+
+
+    const router = useRouter();
 
     const [user, setUser] = useState<User | null>(null);
 
@@ -29,7 +32,7 @@ export default function Header() {
         getUser();
     }, []);
     return (
-        <header className="sticky top-0 z-40 flex h-20 items-center justify-between bg-white px-6">
+        <header className="sticky top-0 z-10 flex h-20 items-center justify-between bg-white px-6">
 
             {/* Left */}
 
@@ -49,15 +52,10 @@ export default function Header() {
 
             <div className="flex items-center gap-4">
 
-                <button className="relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl hover:bg-gray-50">
-
-                    <Bell size={20} />
-
-                    <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-500"></span>
-
-                </button>
-
-                <div className="flex items-center gap-3">
+                <div
+                    onClick={() => router.push("/employee/profile")}
+                    className="flex cursor-pointer items-center gap-3 rounded-xl p-2 transition hover:bg-gray-100"
+                >
 
                     <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-500 text-lg font-bold text-white">
                         {user?.name?.charAt(0).toUpperCase()}

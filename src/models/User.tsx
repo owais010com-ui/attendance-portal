@@ -5,6 +5,8 @@ export interface IUser extends Document {
     email: string;
     password: string;
     employeeId: string;
+    phone?: string;
+    address?: string;
     role: "admin" | "employee";
     isActive: boolean;
 }
@@ -45,6 +47,15 @@ const userSchema = new Schema<IUser>(
         isActive: {
             type: Boolean,
             default: true,
+        },
+        phone: {
+            type: String,
+            default: "",
+        },
+
+        address: {
+            type: String,
+            default: "",
         },
     },
     {

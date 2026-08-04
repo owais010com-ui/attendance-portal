@@ -6,7 +6,6 @@ import {
     LayoutDashboard,
     Clock3,
     User,
-    CalendarDays,
     Settings,
 } from "lucide-react";
 
@@ -27,11 +26,6 @@ const navItems = [
         icon: User,
     },
     {
-        href: "/employee/leave",
-        label: "Leave",
-        icon: CalendarDays,
-    },
-    {
         href: "/employee/settings",
         label: "Settings",
         icon: Settings,
@@ -43,7 +37,7 @@ export default function MobileBottomNav() {
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg lg:hidden">
-            <div className="grid grid-cols-5">
+            <div className="grid grid-cols-4">
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     const active = pathname === item.href;

@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import LogoutModal from "./LogoutModal";
+
 import {
     LayoutDashboard,
     Users,
@@ -50,6 +55,39 @@ export default function Sidebar({
     setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const pathname = usePathname();
+
+    const router = useRouter();
+
+    const [logoutModal, setLogoutModal] = useState(false);
+    const [logoutLoading, setLogoutLoading] = useState(false);
+
+    async function handleLogout() {
+        setLogoutLoading(true);
+
+        try {
+            const res = await fetch("/api/auth/logout", {
+                method: "POST",
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                toast.success("Logged out successfully");
+
+                setLogoutModal(false);
+
+                router.replace("/login");
+                router.refresh();
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error("Something went wrong");
+        } finally {
+            setLogoutLoading(false);
+        }
+    }
 
     return (
         <aside
@@ -115,9 +153,8 @@ export default function Sidebar({
             <div className="p-4">
 
                 <button
-                    className={`flex w-full items-center rounded-xl py-3 text-red-600 hover:bg-red-50 ${collapsed
-                        ? "justify-center"
-                        : "gap-3 px-4"
+                    onClick={() => setLogoutModal(true)}
+                    className={`flex w-full cursor-pointer items-center rounded-xl py-3 text-red-600 transition hover:bg-red-50 ${collapsed ? "justify-center" : "gap-3 px-4"
                         }`}
                 >
 
@@ -130,6 +167,13 @@ export default function Sidebar({
                 </button>
 
             </div>
+
+            <LogoutModal
+                isOpen={logoutModal}
+                onClose={() => setLogoutModal(false)}
+                onConfirm={handleLogout}
+                loading={logoutLoading}
+            />
 
         </aside>
     );

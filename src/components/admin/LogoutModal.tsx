@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 
 interface LogoutModalProps {
@@ -39,9 +39,18 @@ export default function LogoutModal({
                     transition={{ duration: 0.35 }}
                 >
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.94 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.94 }}
+                        initial={{
+                            opacity: 0,
+                            scale: 0.94,
+                        }}
+                        animate={{
+                            opacity: 1,
+                            scale: 1,
+                        }}
+                        exit={{
+                            opacity: 0,
+                            scale: 0.94,
+                        }}
                         transition={{
                             duration: 0.38,
                             ease: [0.22, 1, 0.36, 1],
@@ -49,17 +58,15 @@ export default function LogoutModal({
                         className="w-full max-w-md rounded-2xl bg-white shadow-xl"
                     >
                         <div className="p-6">
-
                             <h2 className="text-2xl font-bold text-gray-800">
                                 Logout
                             </h2>
 
                             <p className="mt-3 text-gray-500">
-                                Are you sure you want to logout from your account?
+                                Are you sure you want to logout from the admin account?
                             </p>
 
                             <div className="mt-6 flex justify-end gap-3">
-
                                 <button
                                     onClick={onClose}
                                     className="cursor-pointer rounded-lg border px-5 py-2 transition hover:bg-gray-100"
@@ -74,9 +81,7 @@ export default function LogoutModal({
                                 >
                                     {loading ? "Logging out..." : "Logout"}
                                 </button>
-
                             </div>
-
                         </div>
                     </motion.div>
                 </motion.div>
