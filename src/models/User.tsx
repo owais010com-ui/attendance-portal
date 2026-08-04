@@ -7,6 +7,7 @@ export interface IUser extends Document {
     employeeId: string;
     phone?: string;
     address?: string;
+    profileImage?: string;
     role: "admin" | "employee";
     isActive: boolean;
 }
@@ -54,6 +55,10 @@ const userSchema = new Schema<IUser>(
         },
 
         address: {
+            type: String,
+            default: "",
+        },
+        profileImage: {
             type: String,
             default: "",
         },

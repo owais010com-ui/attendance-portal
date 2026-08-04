@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Camera } from "lucide-react";
+import Image from "next/image";
 interface User {
     name: string;
     email: string;
@@ -9,6 +11,7 @@ interface User {
     role: string;
     phone: string;
     address: string;
+    profileImage: string;
 }
 
 export default function EditProfilePage() {
@@ -23,6 +26,7 @@ export default function EditProfilePage() {
         role: "",
         phone: "",
         address: "",
+        profileImage: "",
     });
     useEffect(() => {
 
@@ -45,6 +49,57 @@ export default function EditProfilePage() {
 
     }, []);
 
+    async function handleImageChange(
+        e: React.ChangeEvent<HTMLInputElement>
+    ) {
+
+        const file = e.target.files?.[0];
+
+        if (!file) return;
+
+        const formData = new FormData();
+
+        formData.append("file", file);
+
+        formData.append("upload_preset", "employ-image");
+
+        try {
+
+            setSaving(true);
+
+            const res = await fetch(
+                "https://api.cloudinary.com/v1_1/dpcvy4xll/image/upload",
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
+
+            const data = await res.json();
+
+            if (data.secure_url) {
+
+                setForm((prev) => ({
+                    ...prev,
+                    profileImage: data.secure_url,
+                }));
+
+                toast.success("Profile image uploaded");
+
+            }
+
+        } catch {
+
+            toast.error("Image upload failed");
+
+        } finally {
+
+            setSaving(false);
+
+        }
+
+    }
+
     async function handleSubmit(
         e: React.FormEvent
     ) {
@@ -62,6 +117,7 @@ export default function EditProfilePage() {
                 email: form.email,
                 phone: form.phone,
                 address: form.address,
+                profileImage: form.profileImage,
             }),
         });
 
@@ -85,13 +141,52 @@ export default function EditProfilePage() {
     }
 
     if (loading) {
-        return (
-            <div className="rounded-3xl bg-white p-10 text-center">
-                Loading...
-            </div>
-        );
-    }
 
+        return (
+
+            <div className="mx-auto max-w-3xl animate-pulse">
+
+                <div className="rounded-3xl bg-white p-8 shadow-sm">
+
+                    {/* Avatar */}
+
+                    <div className="flex flex-col items-center">
+
+                        <div className="h-28 w-28 rounded-full bg-gray-200"></div>
+
+                        <div className="mt-5 h-8 w-48 rounded bg-gray-200"></div>
+
+                    </div>
+
+                    {/* Form */}
+
+                    <div className="mt-10 space-y-6">
+
+                        {[1, 2, 3, 4, 5, 6].map((item) => (
+
+                            <div key={item}>
+
+                                <div className="mb-2 h-4 w-32 rounded bg-gray-200"></div>
+
+                                <div className="h-12 w-full rounded-xl bg-gray-200"></div>
+
+                            </div>
+
+                        ))}
+
+                    </div>
+
+                    {/* Button */}
+
+                    <div className="mt-8 h-12 w-full rounded-xl bg-gray-200"></div>
+
+                </div>
+
+            </div>
+
+        );
+
+    }
     return (
 
         <div className="mx-auto max-w-3xl">
@@ -103,8 +198,49 @@ export default function EditProfilePage() {
 
                 <div className="flex flex-col items-center">
 
-                    <div className="flex h-28 w-28 items-center justify-center rounded-full bg-blue-600 text-5xl font-bold text-white">
-                        {form.name.charAt(0).toUpperCase()}
+                    <div className="relative">
+
+                        <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-blue-600">
+
+                            {form.profileImage ? (
+
+                                <Image
+                                    src={form.profileImage}
+                                    alt="Profile"
+                                    width={112}
+                                    height={112}
+                                    className="h-28 w-28 rounded-full object-cover"
+                                />
+
+                            ) : (
+
+                                <span className="text-5xl font-bold text-white">
+
+                                    {form.name.charAt(0).toUpperCase()}
+
+                                </span>
+
+                            )}
+
+                        </div>
+
+                        <label
+                            htmlFor="profile-image"
+                            className="absolute bottom-0 right-0 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-blue-600 text-white shadow-lg hover:bg-blue-700"
+                        >
+
+                            <Camera size={18} />
+
+                        </label>
+
+                        <input
+                            id="profile-image"
+                            type="file"
+                            accept="image/*"
+                            hidden
+                            onChange={handleImageChange}
+                        />
+
                     </div>
 
                     <h2 className="mt-5 text-3xl font-bold">
@@ -112,7 +248,6 @@ export default function EditProfilePage() {
                     </h2>
 
                 </div>
-
                 <div className="mt-10 grid gap-6">
 
                     <div>

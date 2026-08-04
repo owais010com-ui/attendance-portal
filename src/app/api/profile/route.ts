@@ -31,6 +31,7 @@ export async function PUT(req: NextRequest) {
             email,
             phone,
             address,
+            profileImage,
         } = await req.json();
 
         if (
@@ -72,6 +73,7 @@ export async function PUT(req: NextRequest) {
                 email,
                 phone,
                 address,
+                profileImage,
             },
             {
                 new: true,

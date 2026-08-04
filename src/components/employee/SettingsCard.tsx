@@ -20,22 +20,123 @@ interface UserData {
 
 export default function SettingsCard() {
     const [user, setUser] = useState<UserData | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+
         async function getUser() {
-            const res = await fetch("/api/auth/me", {
-                cache: "no-store",
-            });
 
-            const data = await res.json();
+            try {
 
-            if (data.success) {
-                setUser(data.user);
+                const res = await fetch("/api/auth/me", {
+                    cache: "no-store",
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    setUser(data.user);
+                }
+
+            } catch (error) {
+
+                console.log(error);
+
+            } finally {
+
+                setLoading(false);
+
             }
+
         }
 
         getUser();
+
     }, []);
+
+
+    if (loading) {
+
+    return (
+
+        <div className="animate-pulse rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+            <div className="h-8 w-40 rounded bg-gray-200"></div>
+
+            <div className="mt-2 h-4 w-60 rounded bg-gray-200"></div>
+
+            <div className="mt-8 space-y-5">
+
+                {[1, 2, 3].map((item) => (
+
+                    <div
+                        key={item}
+                        className="flex items-center gap-4 rounded-xl border p-4"
+                    >
+
+                        <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+
+                        <div className="flex-1">
+
+                            <div className="h-4 w-24 rounded bg-gray-200"></div>
+
+                            <div className="mt-2 h-5 w-40 rounded bg-gray-200"></div>
+
+                        </div>
+
+                    </div>
+
+                ))}
+
+                <div className="rounded-xl border p-5">
+
+                    <div className="h-6 w-48 rounded bg-gray-200"></div>
+
+                    <div className="mt-6 grid gap-5 md:grid-cols-2">
+
+                        {[1, 2, 3, 4].map((item) => (
+
+                            <div key={item}>
+
+                                <div className="h-4 w-24 rounded bg-gray-200"></div>
+
+                                <div className="mt-2 h-5 w-32 rounded bg-gray-200"></div>
+
+                            </div>
+
+                        ))}
+
+                    </div>
+
+                </div>
+
+                <div className="flex items-center justify-between rounded-xl border p-4">
+
+                    <div className="flex items-center gap-4">
+
+                        <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+
+                        <div>
+
+                            <div className="h-5 w-48 rounded bg-gray-200"></div>
+
+                            <div className="mt-2 h-4 w-32 rounded bg-gray-200"></div>
+
+                        </div>
+
+                    </div>
+
+                    <div className="h-7 w-16 rounded-full bg-gray-200"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    );
+
+}
 
     return (
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">

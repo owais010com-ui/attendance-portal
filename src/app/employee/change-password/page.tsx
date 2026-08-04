@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Eye, EyeOff, Lock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ChangePasswordPage() {
@@ -161,9 +161,21 @@ export default function ChangePasswordPage() {
 
                 <button
                     disabled={loading}
-                    className="cursor-pointer w-full rounded-xl bg-blue-600 py-3 font-semibold text-white hover:bg-blue-700"
+                    className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-600 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                    {loading ? "Updating..." : "Update Password"}
+
+                    {loading ? (
+                        <>
+                            <Loader2
+                                size={20}
+                                className="animate-spin"
+                            />
+                            Updating...
+                        </>
+                    ) : (
+                        "Update Password"
+                    )}
+
                 </button>
             </form>
         </div>
