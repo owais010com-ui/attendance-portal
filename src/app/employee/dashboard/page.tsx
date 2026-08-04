@@ -76,8 +76,27 @@ export default function EmployeeDashboard() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl bg-white p-10 text-center">
-        Loading Dashboard...
+      <div className="space-y-6 animate-pulse">
+
+        <div className="h-52 rounded-3xl bg-gray-200"></div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[...Array(4)].map((_, index) => (
+            <div
+              key={index}
+              className="h-36 rounded-2xl bg-gray-200"
+            />
+          ))}
+        </div>
+
+        <div className="grid gap-6 xl:grid-cols-3">
+
+          <div className="h-[470px] rounded-2xl bg-gray-200"></div>
+
+          <div className="h-[470px] rounded-2xl bg-gray-200 xl:col-span-2"></div>
+
+        </div>
+
       </div>
     );
   }
@@ -91,7 +110,7 @@ export default function EmployeeDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
 
       <WelcomeCard
         user={dashboardData.user}
@@ -102,7 +121,7 @@ export default function EmployeeDashboard() {
         todayAttendance={dashboardData.todayAttendance}
       />
 
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div className="space-y-4 md:space-y-6">
 
         <div className="xl:col-span-1">
 

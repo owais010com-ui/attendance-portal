@@ -65,6 +65,9 @@ export default function EmployeeModal({
                             ease: [0.22, 1, 0.36, 1],
                         }}
                         className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl"
+
+
+                        
                     >
                         <div className="flex items-center justify-between border-b p-6">
                             <h2 className="text-2xl font-bold text-gray-800">

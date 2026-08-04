@@ -1,7 +1,6 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 
 interface User {
@@ -9,12 +8,14 @@ interface User {
     role: string;
 }
 
+
 export default function Header() {
 
 
     const router = useRouter();
 
     const [user, setUser] = useState<User | null>(null);
+    const pathname = usePathname();
 
     useEffect(() => {
         async function getUser() {
@@ -31,6 +32,28 @@ export default function Header() {
 
         getUser();
     }, []);
+
+    const pageTitle = useMemo(() => {
+
+        const titles: Record<string, string> = {
+
+            "/employee/dashboard": "Dashboard",
+
+            "/employee/attendance": "Attendance",
+
+            "/employee/profile": "My Profile",
+
+            "/employee/profile/edit": "Edit Profile",
+
+            "/employee/change-password": "Change Password",
+
+            "/employee/settings": "Settings",
+
+        };
+
+        return titles[pathname] || "Employee";
+
+    }, [pathname]);
     return (
         <header className="sticky top-0 z-10 flex h-20 items-center justify-between bg-white px-6">
 
@@ -39,12 +62,8 @@ export default function Header() {
             <div>
 
                 <h1 className="text-2xl font-bold text-gray-800">
-                    Employee Dashboard
+                    {pageTitle}
                 </h1>
-
-                <p className="text-sm text-gray-500">
-                    Welcome back
-                </p>
 
             </div>
 
