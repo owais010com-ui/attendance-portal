@@ -53,7 +53,26 @@ export async function POST(req: Request) {
             );
         }
 
-        // Save attendance
+        // ===== Attendance Status Logic =====
+        // Abhi 9:30 AM hardcoded hai
+        // Baad me admin settings se ye time aayega
+
+        const lateHour = 9;
+        const lateMinute = 30;
+
+        const now = new Date();
+
+        const currentMinutes =
+            now.getHours() * 60 + now.getMinutes();
+
+        const lateMinutes =
+            lateHour * 60 + lateMinute;
+
+        const status =
+            currentMinutes > lateMinutes
+                ? "Late"
+                : "Present";
+
         await Attendance.create({
             employeeId,
             employeeName,
@@ -64,14 +83,17 @@ export async function POST(req: Request) {
             locationLink,
             checkIn,
             date,
-            status: "Present",
+            status,
         });
 
         return NextResponse.json({
             success: true,
             message: "Attendance marked successfully.",
+            status,
         });
+
     } catch (error) {
+
         console.log(error);
 
         return NextResponse.json(
@@ -84,7 +106,6 @@ export async function POST(req: Request) {
     }
 }
 
-
 export async function GET() {
     try {
         await connectDB();
@@ -93,17 +114,21 @@ export async function GET() {
             .sort({ createdAt: -1 })
             .limit(50);
 
-        return Response.json({
+        return NextResponse.json({
             success: true,
             attendance,
         });
 
     } catch (error) {
+
         console.log(error);
 
-        return Response.json({
-            success: false,
-            message: "Something went wrong.",
-        });
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Something went wrong.",
+            },
+            { status: 500 }
+        );
     }
 }

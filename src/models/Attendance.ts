@@ -44,12 +44,12 @@ const attendanceSchema = new Schema(
 
         checkIn: {
             type: String,
-            required: true,
+            default: "",
         },
 
         status: {
             type: String,
-            enum: ["Present", "Absent"],
+            enum: ["Present", "Late", "Absent"],
             default: "Present",
         },
     },

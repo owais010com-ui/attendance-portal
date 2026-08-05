@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Pencil } from "lucide-react";
+import Image from "next/image";
 
 interface UserData {
     name: string;
@@ -9,6 +10,7 @@ interface UserData {
     employeeId: string;
     role: string;
     isActive: boolean;
+    profileImage?: string;
 }
 
 interface ProfileHeaderProps {
@@ -38,42 +40,53 @@ export default function ProfileHeader({
 
                     {/* Left */}
 
-                    <div className="flex flex-col items-center text-center lg:flex-row lg:items-end lg:text-left gap-5">
+                    <div className="flex flex-col items-center gap-5 text-center lg:flex-row lg:items-end lg:text-left">
 
                         {/* Avatar */}
 
-                        <div className="flex h-24 w-24 sm:h-28 sm:w-28 lg:h-32 lg:w-32 items-center justify-center rounded-full border-4 sm:border-8 border-white bg-blue-600 text-3xl sm:text-4xl lg:text-5xl font-bold text-white shadow-lg">
+                        <div className="flex h-24 w-24 sm:h-28 sm:w-28 lg:h-36 lg:w-36 items-center justify-center overflow-hidden rounded-full bg-blue-600 shadow-lg">
 
-                            {user.name.charAt(0).toUpperCase()}
+                            {user.profileImage ? (
+                                <Image
+                                    src={user.profileImage}
+                                    alt={user.name}
+                                    width={144}
+                                    height={144}
+                                    className="h-full w-full rounded-full object-cover"
+                                />
+                            ) : (
+                                <span className="text-4xl font-bold text-white">
+                                    {user.name.charAt(0).toUpperCase()}
+                                </span>
+                            )}
 
                         </div>
-
                         {/* User Info */}
 
                         <div>
 
-                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">
+                            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
                                 {user.name}
                             </h1>
 
-                            <p className="mt-1 text-sm text-gray-500 break-all">
+                            <p className="mt-1 break-all text-sm text-gray-500">
                                 {user.email}
                             </p>
 
-                            <div className="mt-4 flex flex-wrap justify-center lg:justify-start gap-2">
+                            <div className="mt-4 flex flex-wrap justify-center gap-2 lg:justify-start">
 
-                                <span className="rounded-full bg-blue-100 px-4 py-1 text-xs sm:text-sm font-medium text-blue-700">
+                                <span className="rounded-full bg-blue-100 px-4 py-1 text-xs font-medium text-blue-700 sm:text-sm">
                                     {user.employeeId}
                                 </span>
 
-                                <span className="rounded-full bg-gray-100 px-4 py-1 text-xs sm:text-sm capitalize text-gray-700">
+                                <span className="rounded-full bg-gray-100 px-4 py-1 text-xs capitalize text-gray-700 sm:text-sm">
                                     {user.role}
                                 </span>
 
                                 <span
-                                    className={`rounded-full px-4 py-1 text-xs sm:text-sm font-medium ${user.isActive
-                                            ? "bg-green-100 text-green-700"
-                                            : "bg-red-100 text-red-700"
+                                    className={`rounded-full px-4 py-1 text-xs font-medium sm:text-sm ${user.isActive
+                                        ? "bg-green-100 text-green-700"
+                                        : "bg-red-100 text-red-700"
                                         }`}
                                 >
                                     {user.isActive ? "Active" : "Inactive"}
@@ -89,7 +102,7 @@ export default function ProfileHeader({
 
                     <button
                         onClick={() => router.push("/employee/profile/edit")}
-                        className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm sm:text-base font-semibold text-white transition hover:bg-blue-700"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto sm:text-base"
                     >
                         <Pencil size={18} />
                         Edit Profile

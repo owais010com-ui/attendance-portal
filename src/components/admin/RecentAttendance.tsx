@@ -1,133 +1,201 @@
-import Image from "next/image";
+"use client";
 
-const attendance = [
-    {
-        id: 1,
-        name: "Ali Khan",
-        employeeId: "EMP001",
-        time: "09:02 AM",
-        location: "Karachi",
-        status: "Present",
-        image: "https://i.pravatar.cc/100?img=1",
-    },
-    {
-        id: 2,
-        name: "Ahmed Raza",
-        employeeId: "EMP002",
-        time: "09:10 AM",
-        location: "Lahore",
-        status: "Present",
-        image: "https://i.pravatar.cc/100?img=2",
-    },
-    {
-        id: 3,
-        name: "Usman Ali",
-        employeeId: "EMP003",
-        time: "--",
-        location: "--",
-        status: "Absent",
-        image: "https://i.pravatar.cc/100?img=3",
-    },
-];
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { Eye, MapPin } from "lucide-react";
+
+interface Attendance {
+    _id: string;
+    employeeName: string;
+    employeeId: string;
+    profileImage: string;
+    checkIn: string;
+    locationLink: string;
+    status: string;
+    date: string;
+}
 
 export default function RecentAttendance() {
+
+    const [attendance, setAttendance] = useState<Attendance[]>([]);
+
+    useEffect(() => {
+        async function getRecentAttendance() {
+
+            try {
+
+                const res = await fetch("/api/dashboard", {
+                    cache: "no-store",
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    setAttendance(data.recentAttendance);
+                }
+
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        getRecentAttendance();
+    }, []);
+
     return (
         <div className="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm">
 
             <div className="border-b p-5">
-
-                <h2 className="text-lg sm:text-xl font-bold text-slate-800">
+                <h2 className="text-xl font-bold">
                     Recent Attendance
                 </h2>
-
             </div>
 
-            {/* Mobile Cards */}
+            {/* Mobile */}
 
-            <div className="block lg:hidden space-y-4 p-4">
-                {attendance.map((item) => (
-                    <div
-                        key={item.id}
-                        className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
-                    >
-                        <div className="flex items-center gap-3">
+            <div className="space-y-4 p-4 lg:hidden">
 
-                            <Image
-                                src={item.image}
-                                alt={item.name}
-                                width={50}
-                                height={50}
-                                className="rounded-full"
-                            />
+                {attendance.length > 0 ? (
 
-                            <div>
-                                <h3 className="font-semibold text-gray-800">
-                                    {item.name}
-                                </h3>
+                    attendance.map((item) => (
 
-                                <p className="text-sm text-gray-500">
-                                    {item.employeeId}
+                        <div
+                            key={item._id}
+                            className="rounded-2xl border p-4"
+                        >
+
+                            <div className="flex items-center gap-3">
+
+                                {item.profileImage ? (
+
+                                    <Image
+                                        src={item.profileImage}
+                                        alt={item.employeeName}
+                                        width={55}
+                                        height={55}
+                                        className="h-14 w-14 rounded-full object-cover"
+                                    />
+
+                                ) : (
+
+                                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-lg font-bold text-white">
+
+                                        {item.employeeName.charAt(0)}
+
+                                    </div>
+
+                                )}
+
+                                <div>
+
+                                    <h3 className="font-semibold">
+                                        {item.employeeName}
+                                    </h3>
+
+                                    <p className="text-sm text-gray-500">
+                                        {item.employeeId}
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <div className="mt-4 space-y-2 text-sm">
+
+                                <p>
+                                    <span className="font-medium">
+                                        Date:
+                                    </span>{" "}
+                                    {item.date}
                                 </p>
+
+                                <p>
+                                    <span className="font-medium">
+                                        Check In:
+                                    </span>{" "}
+                                    {item.checkIn}
+                                </p>
+
+                            </div>
+
+                            <div className="mt-4 flex gap-3">
+
+                                <a
+                                    href={item.locationLink}
+                                    target="_blank"
+                                    className="flex flex-1 items-center justify-center rounded-xl bg-blue-600 py-2 text-white"
+                                >
+                                    <MapPin size={18} />
+                                </a>
+
+                                <button
+                                    className="flex flex-1 items-center justify-center rounded-xl bg-slate-800 py-2 text-white"
+                                >
+                                    <Eye size={18} />
+                                </button>
+
+                            </div>
+
+                            <div className="mt-4">
+
+                                <span
+                                    className={`rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Present"
+                                            ? "bg-green-100 text-green-700"
+                                            : item.status === "Late"
+                                                ? "bg-yellow-100 text-yellow-700"
+                                                : "bg-red-100 text-red-700"
+                                        }`}
+                                >
+                                    {item.status}
+                                </span>
+
                             </div>
 
                         </div>
 
-                        <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    ))
 
-                            <div>
-                                <p className="text-gray-500">Time</p>
-                                <p className="font-medium">{item.time}</p>
-                            </div>
+                ) : (
 
-                            <div>
-                                <p className="text-gray-500">Location</p>
-                                <p className="font-medium">{item.location}</p>
-                            </div>
-
-                        </div>
-
-                        <div className="mt-4">
-
-                            <span
-                                className={`rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Present"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
-                                    }`}
-                            >
-                                {item.status}
-                            </span>
-
-                        </div>
-
+                    <div className="py-10 text-center text-gray-500">
+                        No attendance found.
                     </div>
-                ))}
+
+                )}
+
             </div>
-            <div className="hidden lg:block overflow-x-auto">
 
+            {/* Desktop */}
 
-                <table className="min-w-[700px] w-full">
+            <div className="hidden overflow-x-auto lg:block">
+
+                <table className="w-full">
 
                     <thead className="bg-gray-50">
 
                         <tr>
 
-                            <th className="p-4 text-left text-sm font-semibold">
+                            <th className="p-4 text-left">
                                 Employee
                             </th>
 
-                            <th className="p-4 text-left text-sm font-semibold">
+                            <th className="p-4 text-left">
                                 ID
                             </th>
 
-                            <th className="p-4 text-left text-sm font-semibold">
-                                Time
+                            <th className="p-4 text-left">
+                                Date
                             </th>
 
-                            <th className="p-4 text-left text-sm font-semibold">
+                            <th className="p-4 text-left">
+                                Check In
+                            </th>
+
+                            <th className="p-4 text-center">
                                 Location
                             </th>
 
-                            <th className="p-4 text-left text-sm font-semibold">
+                            <th className="p-4 text-left">
                                 Status
                             </th>
 
@@ -137,55 +205,102 @@ export default function RecentAttendance() {
 
                     <tbody>
 
-                        {attendance.map((item) => (
+                        {attendance.length > 0 ? (
 
-                            <tr
-                                key={item.id}
-                                className="border-t transition hover:bg-gray-50"
-                            >
+                            attendance.map((item) => (
 
-                                <td className="p-4">
+                                <tr
+                                    key={item._id}
+                                    className="border-t hover:bg-gray-50"
+                                >
 
-                                    <div className="flex items-center gap-3">
+                                    <td className="p-4">
 
-                                        <Image
-                                            src={item.image}
-                                            alt={item.name}
-                                            width={42}
-                                            height={42}
-                                            className="rounded-full"
-                                        />
+                                        <div className="flex items-center gap-3">
 
-                                        <span className="font-medium">
-                                            {item.name}
+                                            {item.profileImage ? (
+
+                                                <Image
+                                                    src={item.profileImage}
+                                                    alt={item.employeeName}
+                                                    width={42}
+                                                    height={42}
+                                                    className="h-11 w-11 rounded-full object-cover"
+                                                />
+
+                                            ) : (
+
+                                                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
+
+                                                    {item.employeeName.charAt(0)}
+
+                                                </div>
+
+                                            )}
+
+                                            {item.employeeName}
+
+                                        </div>
+
+                                    </td>
+
+                                    <td className="p-4">
+                                        {item.employeeId}
+                                    </td>
+
+                                    <td className="p-4">
+                                        {item.date}
+                                    </td>
+
+                                    <td className="p-4">
+                                        {item.checkIn}
+                                    </td>
+
+                                    <td className="p-4 text-center">
+
+                                        <a
+                                            href={item.locationLink}
+                                            target="_blank"
+                                            className="inline-flex rounded-lg bg-blue-600 p-2 text-white"
+                                        >
+                                            <MapPin size={18} />
+                                        </a>
+
+                                    </td>
+
+                                    <td className="p-4">
+
+                                        <span
+                                            className={`rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Present"
+                                                ? "bg-green-100 text-green-700"
+                                                : item.status === "Late"
+                                                    ? "bg-yellow-100 text-yellow-700"
+                                                    : "bg-red-100 text-red-700"
+                                                }`}
+                                        >
+                                            {item.status}
                                         </span>
 
-                                    </div>
+                                    </td>
 
-                                </td>
+                                </tr>
 
-                                <td className="p-4">{item.employeeId}</td>
+                            ))
 
-                                <td className="p-4">{item.time}</td>
+                        ) : (
 
-                                <td className="p-4">{item.location}</td>
+                            <tr>
 
-                                <td className="p-4">
-
-                                    <span
-                                        className={`rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Present"
-                                            ? "bg-green-100 text-green-700"
-                                            : "bg-red-100 text-red-700"
-                                            }`}
-                                    >
-                                        {item.status}
-                                    </span>
-
+                                <td
+                                    colSpan={6}
+                                    className="py-10 text-center text-gray-500"
+                                >
+                                    No attendance found.
                                 </td>
 
                             </tr>
 
-                        ))}
+                        )}
 
                     </tbody>
 

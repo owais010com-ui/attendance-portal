@@ -51,6 +51,7 @@ export async function POST(req: Request) {
         const token = generateToken({
             id: user._id,
             role: user.role,
+            employeeId: user.employeeId,
         });
 
         const response = NextResponse.json({

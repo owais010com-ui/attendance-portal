@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalendarDays, Eye, MapPin, Search } from "lucide-react";
+import { Eye, MapPin } from "lucide-react";
 
 interface Attendance {
     _id: string;
@@ -18,36 +18,52 @@ interface Attendance {
 interface AttendanceHistoryProps {
     attendanceHistory: Attendance[];
 }
+const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+];
+const currentMonth = new Date().getMonth() + 1;
+
+const currentYear = new Date().getFullYear();
+
 
 export default function AttendanceHistory({
     attendanceHistory,
 }: AttendanceHistoryProps) {
 
-    const [search, setSearch] = useState("");
+    const currentDate = new Date();
 
-    const [selectedDate, setSelectedDate] = useState("");
+    const [selectedMonth, setSelectedMonth] = useState(
+        currentDate.getMonth() + 1
+    );
+
+    const [selectedYear, setSelectedYear] = useState(
+        currentDate.getFullYear()
+    );
 
     const [currentPage, setCurrentPage] = useState(1);
 
     const recordsPerPage = 10;
-
     const filteredAttendance = useMemo(() => {
-
         return attendanceHistory.filter((item) => {
+            const date = new Date(item.date);
 
-            const matchSearch =
-                item.date.toLowerCase().includes(search.toLowerCase()) ||
-                item.status.toLowerCase().includes(search.toLowerCase());
-
-            const matchDate =
-                selectedDate === "" ||
-                item.date === selectedDate;
-
-            return matchSearch && matchDate;
-
+            return (
+                date.getMonth() + 1 === selectedMonth &&
+                date.getFullYear() === selectedYear
+            );
         });
-
-    }, [attendanceHistory, search, selectedDate]);
+    }, [attendanceHistory, selectedMonth, selectedYear]);
 
     const totalPages = Math.ceil(
         filteredAttendance.length / recordsPerPage
@@ -98,51 +114,27 @@ export default function AttendanceHistory({
 
             </div>
 
-            <div className="flex flex-col gap-4 border-b p-5 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
 
-                <div className="relative w-full md:w-80">
+                <h3 className="text-lg font-semibold">
+                    Monthly Attendance
+                </h3>
 
-                    <Search
-                        size={18}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                    />
-
-                    <input
-                        type="text"
-                        placeholder="Search by date or status..."
-                        value={search}
+                <div className="w-full sm:w-auto">
+                    <select
+                        value={selectedMonth}
                         onChange={(e) => {
-
-                            setSearch(e.target.value);
-
+                            setSelectedMonth(Number(e.target.value));
                             setCurrentPage(1);
-
                         }}
-                        className="h-11 w-full rounded-xl border pl-11 pr-4 outline-none focus:border-blue-600"
-                    />
-
-                </div>
-
-                <div className="relative">
-
-                    <CalendarDays
-                        size={18}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                    />
-
-                    <input
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => {
-
-                            setSelectedDate(e.target.value);
-
-                            setCurrentPage(1);
-
-                        }}
-                        className="h-11 rounded-xl border pl-11 pr-4 outline-none focus:border-blue-600"
-                    />
-
+                        className="h-11 w-full rounded-xl border px-4 text-sm outline-none focus:border-blue-600 sm:w-56"
+                    >
+                        {months.slice(0, currentMonth).map((month, index) => (
+                            <option key={index} value={index + 1}>
+                                {month} {currentYear}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
             </div>
@@ -204,10 +196,10 @@ export default function AttendanceHistory({
 
                                         <span
                                             className={`rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Present"
-                                                    ? "bg-green-100 text-green-700"
-                                                    : item.status === "Late"
-                                                        ? "bg-yellow-100 text-yellow-700"
-                                                        : "bg-red-100 text-red-700"
+                                                ? "bg-green-100 text-green-700"
+                                                : item.status === "Late"
+                                                    ? "bg-yellow-100 text-yellow-700"
+                                                    : "bg-red-100 text-red-700"
                                                 }`}
                                         >
                                             {item.status}
@@ -286,10 +278,10 @@ export default function AttendanceHistory({
 
                                 <span
                                     className={`rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Present"
-                                            ? "bg-green-100 text-green-700"
-                                            : item.status === "Late"
-                                                ? "bg-yellow-100 text-yellow-700"
-                                                : "bg-red-100 text-red-700"
+                                        ? "bg-green-100 text-green-700"
+                                        : item.status === "Late"
+                                            ? "bg-yellow-100 text-yellow-700"
+                                            : "bg-red-100 text-red-700"
                                         }`}
                                 >
                                     {item.status}

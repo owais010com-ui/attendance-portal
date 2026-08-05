@@ -5,6 +5,7 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 export interface TokenPayload {
     id: string;
     role: "admin" | "employee";
+    employeeId: string;
 }
 
 export function generateToken(payload: TokenPayload) {
