@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Settings from "@/models/Settings";
+import User from "@/models/User";
 
-// GET Settings
 export async function GET() {
     try {
         await connectDB();
@@ -27,7 +27,6 @@ export async function GET() {
     }
 }
 
-// UPDATE Settings
 export async function PUT(req: Request) {
     try {
         await connectDB();
@@ -42,20 +41,44 @@ export async function PUT(req: Request) {
             settings = await Settings.findByIdAndUpdate(
                 settings._id,
                 body,
-                { new: true }
+                {
+                    new: true,
+                }
+            );
+        }
+        
+        if (
+            body.adminName ||
+            body.adminEmail ||
+            body.adminPhone
+        ) {
+            await User.findOneAndUpdate(
+                { role: "admin" },
+                {
+                    name: body.adminName,
+                    email: body.adminEmail,
+                    phone: body.adminPhone,
+                }
             );
         }
 
         return NextResponse.json({
             success: true,
             settings,
+            message: "Settings Updated Successfully",
         });
+
     } catch (error) {
         console.log(error);
 
-        return NextResponse.json({
-            success: false,
-            message: "Server Error",
-        });
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Server Error",
+            },
+            {
+                status: 500,
+            }
+        );
     }
 }

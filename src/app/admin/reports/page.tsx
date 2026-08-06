@@ -1,18 +1,18 @@
 "use client";
 
-import { Download, FileSpreadsheet, CalendarDays } from "lucide-react";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 import { useEffect, useState } from "react";
-
+import { Download, FileSpreadsheet, CalendarDays } from "lucide-react";
 import {
     Users,
     UserCheck,
     UserX,
-    Percent,
 } from "lucide-react";
+import Image from "next/image";
+
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 import {
     ResponsiveContainer,
@@ -27,36 +27,70 @@ import {
     Cell,
 } from "recharts";
 
-
 const COLORS = [
-    "#2563EB", // Present
-    "#F59E0B", // Late
-    "#EF4444", // Absent
+    "#2563EB",
+    "#F59E0B",
+    "#EF4444",
 ];
 
+interface Attendance {
+    _id: string;
+    employeeId: string;
+    employeeName: string;
+    email: string;
+    photo: string;
+    latitude: number | null;
+    longitude: number | null;
+    locationLink: string;
+    date: string;
+    checkIn: string;
+    status: "Present" | "Late" | "Absent";
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface ReportStats {
+    totalEmployees: number;
+    present: number;
+    late: number;
+    absent: number;
+    attendancePercentage: number;
+}
 
 export default function ReportsPage() {
 
-    interface Attendance {
-        _id: string;
-        employeeName: string;
-        employeeId: string;
-        date: string;
-        checkIn: string;
-        status: string;
-    }
+    const [filter, setFilter] = useState("today");
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
 
     const [attendance, setAttendance] = useState<Attendance[]>([]);
-    const [loading, setLoading] = useState(true);
 
+    const [stats, setStats] = useState<ReportStats>({
+        totalEmployees: 0,
+        present: 0,
+        late: 0,
+        absent: 0,
+        attendancePercentage: 0,
+    });
+
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
-        async function getAttendance() {
+        async function getReports() {
             try {
-                const res = await fetch("/api/attendance");
+                setLoading(true);
+
+                const res = await fetch(
+                    `/api/reports?filter=${filter}&fromDate=${fromDate}&toDate=${toDate}`,
+                    {
+                        cache: "no-store",
+                    }
+                );
+
                 const data = await res.json();
 
                 if (data.success) {
                     setAttendance(data.attendance);
+                    setStats(data.stats);
                 }
             } catch (error) {
                 console.log(error);
@@ -65,12 +99,8 @@ export default function ReportsPage() {
             }
         }
 
-        getAttendance();
-    }, []);
-
-    const [filter, setFilter] = useState("today");
-    const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
+        getReports();
+    }, [filter, fromDate, toDate]);
 
     const exportPDF = () => {
         const doc = new jsPDF();
@@ -80,7 +110,7 @@ export default function ReportsPage() {
 
         autoTable(doc, {
             head: [["Employee", "ID", "Date", "Check In", "Status"]],
-            body: filteredAttendance.map((item) => [
+            body: attendance.map((item) => [
                 item.employeeName,
                 item.employeeId,
                 item.date,
@@ -95,7 +125,7 @@ export default function ReportsPage() {
 
     const exportExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(
-            filteredAttendance.map((item) => ({
+            attendance.map((item) => ({
                 Employee: item.employeeName,
                 ID: item.employeeId,
                 Date: item.date,
@@ -123,47 +153,6 @@ export default function ReportsPage() {
 
         saveAs(file, "Attendance-Report.xlsx");
     };
-
-    const filteredAttendance = attendance.filter((item) => {
-        const attendanceDate = new Date(item.date);
-        const today = new Date();
-
-        if (filter === "today") {
-            return attendanceDate.toDateString() === today.toDateString();
-        }
-
-        if (filter === "week") {
-            const firstDay = new Date(today);
-            firstDay.setDate(today.getDate() - today.getDay());
-
-            const lastDay = new Date(firstDay);
-            lastDay.setDate(firstDay.getDate() + 6);
-
-            return attendanceDate >= firstDay && attendanceDate <= lastDay;
-        }
-
-        if (filter === "month") {
-            return (
-                attendanceDate.getMonth() === today.getMonth() &&
-                attendanceDate.getFullYear() === today.getFullYear()
-            );
-        }
-
-        if (filter === "custom") {
-            if (!fromDate || !toDate) return true;
-
-            const endDate = new Date(toDate);
-            endDate.setHours(23, 59, 59, 999);
-
-            return (
-                attendanceDate >= new Date(fromDate) &&
-                attendanceDate <= endDate
-            );
-        }
-
-        return true;
-    });
-
     const reportTitle =
         filter === "today"
             ? "Today's Attendance"
@@ -172,7 +161,6 @@ export default function ReportsPage() {
                 : filter === "month"
                     ? "Monthly Attendance"
                     : "Custom Attendance";
-
 
     const pieTitle =
         filter === "today"
@@ -183,140 +171,213 @@ export default function ReportsPage() {
                     ? "Monthly Attendance Ratio"
                     : "Custom Attendance Ratio";
 
-    const totalEmployees = new Set(
-        filteredAttendance.map((item) => item.employeeId)
-    ).size;
+    const totalEmployees = stats.totalEmployees;
 
-    const presentCount = filteredAttendance.filter(
-        (item) => item.status === "Present"
-    ).length;
+    const presentCount = stats.present;
 
-    const absentCount = filteredAttendance.filter(
-        (item) => item.status !== "Present"
-    ).length;
+    const lateCount = stats.late;
 
-    const attendancePercentage =
-        totalEmployees === 0
-            ? 0
-            : Math.round((presentCount / totalEmployees) * 100);
+    const absentCount = stats.absent;
+
+    const attendancePercentage = stats.attendancePercentage;
 
     const chartData = (() => {
-        // TODAY
+
         if (filter === "today") {
+
             return [
                 {
                     period: "Today",
-                    present: filteredAttendance.filter(
-                        (i) => i.status === "Present"
-                    ).length,
-                    absent: filteredAttendance.filter(
-                        (i) => i.status !== "Present"
-                    ).length,
+                    present: stats.present,
+                    late: stats.late,
+                    absent: stats.absent,
                 },
             ];
+
         }
 
-        // WEEK
         if (filter === "week") {
-            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+            const days = [
+                "Sun",
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri",
+                "Sat",
+            ];
 
             const data = days.map((day) => ({
                 period: day,
                 present: 0,
+                late: 0,
                 absent: 0,
             }));
 
-            filteredAttendance.forEach((item) => {
-                const day = days[new Date(item.date).getDay()];
-                const index = data.findIndex((d) => d.period === day);
+            attendance.forEach((item) => {
+
+                const index = new Date(item.date).getDay();
 
                 if (item.status === "Present") {
+
                     data[index].present++;
+
+                } else if (item.status === "Late") {
+
+                    data[index].late++;
+
                 } else {
+
                     data[index].absent++;
+
                 }
+
             });
 
             return data;
+
         }
 
-        // MONTH
         if (filter === "month") {
+
             const daysInMonth = new Date(
                 new Date().getFullYear(),
                 new Date().getMonth() + 1,
                 0
             ).getDate();
 
-            const data = Array.from({ length: daysInMonth }, (_, i) => ({
-                period: String(i + 1),
-                present: 0,
-                absent: 0,
-            }));
+            const data = Array.from(
+                { length: daysInMonth },
+                (_, i) => ({
+                    period: String(i + 1),
+                    present: 0,
+                    late: 0,
+                    absent: 0,
+                })
+            );
 
-            filteredAttendance.forEach((item) => {
-                const day = new Date(item.date).getDate();
+            attendance.forEach((item) => {
+
+                const day = new Date(item.date).getDate() - 1;
 
                 if (item.status === "Present") {
-                    data[day - 1].present++;
+
+                    data[day].present++;
+
+                } else if (item.status === "Late") {
+
+                    data[day].late++;
+
                 } else {
-                    data[day - 1].absent++;
+
+                    data[day].absent++;
+
                 }
+
             });
 
             return data;
+
         }
 
-        // CUSTOM
         const map = new Map<
             string,
-            { period: string; present: number; absent: number }
+            {
+                period: string;
+                present: number;
+                late: number;
+                absent: number;
+            }
         >();
 
-        filteredAttendance.forEach((item) => {
+        attendance.forEach((item) => {
+
             if (!map.has(item.date)) {
+
                 map.set(item.date, {
                     period: item.date,
                     present: 0,
+                    late: 0,
                     absent: 0,
                 });
+
             }
 
             const row = map.get(item.date)!;
 
             if (item.status === "Present") {
+
                 row.present++;
+
+            } else if (item.status === "Late") {
+
+                row.late++;
+
             } else {
+
                 row.absent++;
+
             }
+
         });
 
         return Array.from(map.values());
+
     })();
 
     const pieData = [
         {
             name: "Present",
-            value: filteredAttendance.filter(
-                (item) => item.status === "Present"
-            ).length,
+            value: presentCount,
+        },
+        {
+            name: "Late",
+            value: lateCount,
         },
         {
             name: "Absent",
-            value: filteredAttendance.filter(
-                (item) => item.status !== "Present"
-            ).length,
+            value: absentCount,
         },
     ];
+
+    if (loading) {
+
+        return (
+
+            <div className="space-y-6">
+
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+                    {[1, 2, 3, 4].map((item) => (
+
+                        <div
+                            key={item}
+                            className="h-32 animate-pulse rounded-2xl bg-gray-200"
+                        />
+
+                    ))}
+
+                </div>
+
+                <div className="h-96 animate-pulse rounded-2xl bg-gray-200" />
+
+                <div className="h-96 animate-pulse rounded-2xl bg-gray-200" />
+
+            </div>
+
+        );
+
+    }
 
     return (
         <div className="space-y-6">
 
+            {/* Filter */}
+
             <div className="rounded-2xl bg-white p-5 shadow">
 
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-
-                    {/* Filter */}
 
                     <div>
 
@@ -332,6 +393,7 @@ export default function ReportsPage() {
                                 { id: "month", label: "This Month" },
                                 { id: "custom", label: "Custom" },
                             ].map((item) => (
+
                                 <button
                                     key={item.id}
                                     onClick={() => setFilter(item.id)}
@@ -342,13 +404,12 @@ export default function ReportsPage() {
                                 >
                                     {item.label}
                                 </button>
+
                             ))}
 
                         </div>
 
                     </div>
-
-                    {/* Export */}
 
                     <div className="flex gap-2">
 
@@ -414,10 +475,14 @@ export default function ReportsPage() {
 
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {/* Stats */}
+
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
 
                 <div className="flex items-center justify-between rounded-2xl bg-white p-5 shadow">
+
                     <div>
+
                         <p className="text-sm text-gray-500">
                             Total Employees
                         </p>
@@ -425,15 +490,19 @@ export default function ReportsPage() {
                         <h2 className="mt-2 text-3xl font-bold">
                             {totalEmployees}
                         </h2>
+
                     </div>
 
-                    <div className="rounded-xl bg-gray-200 p-3">
-                        <Users className="text-gray-600" />
+                    <div className="rounded-xl bg-slate-100 p-3">
+                        <Users className="text-slate-700" />
                     </div>
+
                 </div>
 
                 <div className="flex items-center justify-between rounded-2xl bg-white p-5 shadow">
+
                     <div>
+
                         <p className="text-sm text-gray-500">
                             Present
                         </p>
@@ -441,15 +510,39 @@ export default function ReportsPage() {
                         <h2 className="mt-2 text-3xl font-bold text-green-600">
                             {presentCount}
                         </h2>
+
                     </div>
 
                     <div className="rounded-xl bg-green-100 p-3">
                         <UserCheck className="text-green-600" />
                     </div>
+
                 </div>
 
                 <div className="flex items-center justify-between rounded-2xl bg-white p-5 shadow">
+
                     <div>
+
+                        <p className="text-sm text-gray-500">
+                            Late
+                        </p>
+
+                        <h2 className="mt-2 text-3xl font-bold text-yellow-600">
+                            {lateCount}
+                        </h2>
+
+                    </div>
+
+                    <div className="rounded-xl bg-yellow-100 p-3">
+                        <CalendarDays className="text-yellow-600" />
+                    </div>
+
+                </div>
+
+                <div className="flex items-center justify-between rounded-2xl bg-white p-5 shadow">
+
+                    <div>
+
                         <p className="text-sm text-gray-500">
                             Absent
                         </p>
@@ -457,15 +550,19 @@ export default function ReportsPage() {
                         <h2 className="mt-2 text-3xl font-bold text-red-600">
                             {absentCount}
                         </h2>
+
                     </div>
 
                     <div className="rounded-xl bg-red-100 p-3">
                         <UserX className="text-red-600" />
                     </div>
+
                 </div>
 
-                <div className="flex items-center justify-between rounded-2xl bg-white p-5 shadow ">
+                <div className="flex items-center justify-between rounded-2xl bg-white p-5 shadow">
+
                     <div>
+
                         <p className="text-sm text-gray-500">
                             Attendance %
                         </p>
@@ -473,37 +570,51 @@ export default function ReportsPage() {
                         <h2 className="mt-2 text-3xl font-bold text-blue-600">
                             {attendancePercentage}%
                         </h2>
+
                     </div>
 
                     <div className="rounded-xl bg-blue-100 p-3">
-                        <Percent className="text-blue-600" />
+                        <span className="text-xl font-bold text-blue-600">%</span>
                     </div>
+
                 </div>
 
             </div>
-
             {/* Charts */}
 
             <div className="grid gap-6 lg:grid-cols-2">
 
-                {/* Bar */}
+                {/* Bar Chart */}
 
                 <div className="rounded-2xl bg-white p-6 shadow">
 
                     <h2 className="mb-5 text-xl font-semibold">
                         {reportTitle}
                     </h2>
+
                     <div className="h-80">
 
                         <ResponsiveContainer width="100%" height="100%">
+
                             <BarChart data={chartData}>
+
                                 <CartesianGrid strokeDasharray="3 3" />
+
                                 <XAxis dataKey="period" />
+
                                 <YAxis />
+
                                 <Tooltip />
+
                                 <Bar
                                     dataKey="present"
                                     fill="#2563EB"
+                                    radius={[6, 6, 0, 0]}
+                                />
+
+                                <Bar
+                                    dataKey="late"
+                                    fill="#F59E0B"
                                     radius={[6, 6, 0, 0]}
                                 />
 
@@ -512,14 +623,16 @@ export default function ReportsPage() {
                                     fill="#EF4444"
                                     radius={[6, 6, 0, 0]}
                                 />
+
                             </BarChart>
+
                         </ResponsiveContainer>
 
                     </div>
 
                 </div>
 
-                {/* Pie */}
+                {/* Pie Chart */}
 
                 <div className="rounded-2xl bg-white p-6 shadow">
 
@@ -540,12 +653,16 @@ export default function ReportsPage() {
                                     outerRadius={110}
                                     label
                                 >
-                                    {pieData.map((_, index) => (
+
+                                    {pieData.map((item, index) => (
+
                                         <Cell
-                                            key={index}
+                                            key={item.name}
                                             fill={COLORS[index]}
                                         />
+
                                     ))}
+
                                 </Pie>
 
                                 <Tooltip />
@@ -559,15 +676,126 @@ export default function ReportsPage() {
                 </div>
 
             </div>
+
+            {/* Attendance Report */}
+
             <div className="rounded-2xl bg-white shadow">
 
                 <div className="border-b p-5">
-                    <h2 className="text-lg font-semibold text-slate-800">
+
+                    <h2 className="text-lg font-semibold">
                         Attendance Report
                     </h2>
+
                 </div>
 
-                <div className="overflow-x-auto">
+                {/* Mobile Cards */}
+
+                <div className="space-y-4 p-4 lg:hidden">
+
+                    {attendance.length === 0 ? (
+
+                        <div className="py-10 text-center text-gray-500">
+                            No attendance found.
+                        </div>
+
+                    ) : (
+
+                        attendance.map((item) => (
+
+                            <div
+                                key={item._id}
+                                className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
+                            >
+
+                                <div className="flex items-center gap-3">
+
+                                    {item.photo ? (
+
+                                        <Image
+                                            src={item.photo}
+                                            alt={item.employeeName}
+                                            width={48}
+                                            height={48}
+                                            className="h-12 w-12 rounded-full object-cover"
+                                        />
+
+                                    ) : (
+
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-lg font-bold text-white">
+                                            {item.employeeName.charAt(0).toUpperCase()}
+                                        </div>
+
+                                    )}
+
+                                    <div>
+
+                                        <h3 className="font-semibold text-slate-800">
+                                            {item.employeeName}
+                                        </h3>
+
+                                        <p className="text-sm text-gray-500">
+                                            {item.employeeId}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                                <div className="mt-4 space-y-2 text-sm">
+
+                                    <div className="flex justify-between">
+
+                                        <span className="font-medium">
+                                            Date
+                                        </span>
+
+                                        <span>{item.date}</span>
+
+                                    </div>
+
+                                    <div className="flex justify-between">
+
+                                        <span className="font-medium">
+                                            Check In
+                                        </span>
+
+                                        <span>{item.checkIn}</span>
+
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+
+                                        <span className="font-medium">
+                                            Status
+                                        </span>
+
+                                        <span
+                                            className={`rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Present"
+                                                ? "bg-green-100 text-green-700"
+                                                : item.status === "Late"
+                                                    ? "bg-yellow-100 text-yellow-700"
+                                                    : "bg-red-100 text-red-700"
+                                                }`}
+                                        >
+                                            {item.status}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        ))
+
+                    )}
+
+                </div>
+
+                {/* Desktop Table */}
+
+                <div className="hidden overflow-x-auto lg:block">
 
                     <table className="w-full">
 
@@ -575,77 +803,115 @@ export default function ReportsPage() {
 
                             <tr>
 
-                                <th className="px-5 py-4 text-left">Employee</th>
-                                <th className="px-5 py-4 text-left">Date</th>
-                                <th className="px-5 py-4 text-left">Check In</th>
-                                <th className="px-5 py-4 text-left">Status</th>
+                                <th className="px-5 py-4 text-left">
+                                    Employee
+                                </th>
+
+                                <th className="px-5 py-4 text-left">
+                                    Date
+                                </th>
+
+                                <th className="px-5 py-4 text-left">
+                                    Check In
+                                </th>
+
+                                <th className="px-5 py-4 text-left">
+                                    Status
+                                </th>
 
                             </tr>
 
                         </thead>
 
                         <tbody>
-                            {loading ? (
+                            {attendance.length === 0 ? (
+
                                 <tr>
-                                    <td colSpan={4} className="py-10 text-center text-gray-500">
-                                        Loading...
+
+                                    <td
+                                        colSpan={4}
+                                        className="py-10 text-center text-gray-500"
+                                    >
+                                        No attendance found.
                                     </td>
+
                                 </tr>
-                            ) : filteredAttendance.length === 0 ? (
-                                <tr>
-                                    <td colSpan={4} className="py-10 text-center text-gray-500">
-                                        No attendance records found.
-                                    </td>
-                                </tr>
+
                             ) : (
-                                filteredAttendance.map((item) => (
+
+                                attendance.map((item) => (
+
                                     <tr
                                         key={item._id}
-                                        className="border-t transition hover:bg-gray-50"
+                                        className="border-t transition hover:bg-slate-50"
                                     >
-                                        {/* Employee */}
 
                                         <td className="px-5 py-4">
-                                            <div>
-                                                <p className="font-semibold text-slate-800">
-                                                    {item.employeeName}
-                                                </p>
 
-                                                <p className="text-xs text-gray-500">
-                                                    {item.employeeId}
-                                                </p>
+                                            <div className="flex items-center gap-3">
+
+                                                {item.photo ? (
+
+                                                    <Image
+                                                        src={item.photo}
+                                                        alt={item.employeeName}
+                                                        width={40}
+                                                        height={40}
+                                                        className="h-10 w-10 rounded-full object-cover"
+                                                    />
+
+                                                ) : (
+
+                                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
+                                                        {item.employeeName.charAt(0).toUpperCase()}
+                                                    </div>
+
+                                                )}
+
+                                                <div>
+
+                                                    <p className="font-semibold text-slate-800">
+                                                        {item.employeeName}
+                                                    </p>
+
+                                                    <p className="text-xs text-gray-500">
+                                                        {item.employeeId}
+                                                    </p>
+
+                                                </div>
+
                                             </div>
                                         </td>
 
-                                        {/* Date */}
-
-                                        <td className="px-5 py-4 text-gray-700">
+                                        <td className="px-5 py-4">
                                             {item.date}
                                         </td>
 
-                                        {/* Check In */}
-
-                                        <td className="px-5 py-4 text-gray-700">
+                                        <td className="px-5 py-4">
                                             {item.checkIn}
                                         </td>
 
-                                        {/* Status */}
-
                                         <td className="px-5 py-4">
+
                                             <span
                                                 className={`rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Present"
                                                     ? "bg-green-100 text-green-700"
                                                     : item.status === "Late"
-                                                        ? "bg-orange-100 text-orange-700"
+                                                        ? "bg-yellow-100 text-yellow-700"
                                                         : "bg-red-100 text-red-700"
                                                     }`}
                                             >
                                                 {item.status}
                                             </span>
+
                                         </td>
+
                                     </tr>
+
                                 ))
+
                             )}
+
                         </tbody>
 
                     </table>

@@ -47,7 +47,6 @@ export async function POST(req: Request) {
             name,
             email,
             password,
-            employeeId,
         } = body;
 
         const existingUser = await User.findOne({ email });
@@ -63,22 +62,27 @@ export async function POST(req: Request) {
                 }
             );
         }
-        
-        const existingEmployeeId = await User.findOne({
-            employeeId,
+
+        const employees = await User.find({
+            role: "employee",
+        }).select("employeeId");
+
+        let maxNumber = 0;
+
+        employees.forEach((emp) => {
+            const match = emp.employeeId?.match(/^EMP(\d+)$/);
+
+            if (match) {
+                const num = Number(match[1]);   
+
+                if (num > maxNumber) {
+                    maxNumber = num;
+                }
+            }
         });
 
-        if (existingEmployeeId) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Employee ID already exists",
-                },
-                {
-                    status: 400,
-                }
-            );
-        }
+        const employeeId = `EMP${String(maxNumber + 1).padStart(3, "0")}`;
+
 
         const hashedPassword = await bcrypt.hash(password, 10);
 

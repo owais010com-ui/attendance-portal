@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import {
     Users,
-    UserCheck,
-    UserX,
     Camera,
-    Clock3,
 } from "lucide-react";
 
 import RecentAttendance from "@/components/admin/RecentAttendance";
@@ -14,9 +11,6 @@ import StatCard from "@/components/admin/StatCard";
 
 interface Stats {
     totalEmployees: number;
-    presentToday: number;
-    lateToday: number;
-    absentToday: number;
     todayAttendance: number;
 }
 
@@ -24,9 +18,6 @@ export default function AdminDashboard() {
 
     const [stats, setStats] = useState<Stats>({
         totalEmployees: 0,
-        presentToday: 0,
-        lateToday: 0,
-        absentToday: 0,
         todayAttendance: 0,
     });
 
@@ -70,9 +61,9 @@ export default function AdminDashboard() {
 
             <div className="space-y-6">
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
-                    {[1, 2, 3, 4, 5].map((item) => (
+                    {[1, 2].map((item) => (
 
                         <div
                             key={item}
@@ -95,34 +86,13 @@ export default function AdminDashboard() {
 
         <div className="space-y-6">
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
                 <StatCard
                     title="Total Employees"
                     value={stats.totalEmployees}
                     icon={<Users size={24} />}
                     color="bg-blue-50 text-blue-600"
-                />
-
-                <StatCard
-                    title="Present Today"
-                    value={stats.presentToday}
-                    icon={<UserCheck size={24} />}
-                    color="bg-green-50 text-green-600"
-                />
-
-                <StatCard
-                    title="Late Today"
-                    value={stats.lateToday}
-                    icon={<Clock3 size={24} />}
-                    color="bg-yellow-50 text-yellow-600"
-                />
-
-                <StatCard
-                    title="Absent Today"
-                    value={stats.absentToday}
-                    icon={<UserX size={24} />}
-                    color="bg-red-50 text-red-600"
                 />
 
                 <StatCard

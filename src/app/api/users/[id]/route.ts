@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
-import bcrypt from "bcryptjs";
 
 interface Params {
     params: Promise<{
         id: string;
     }>;
 }
-
-// ================= DELETE =================
 
 export async function DELETE(
     req: Request,
@@ -60,8 +57,6 @@ export async function DELETE(
     }
 }
 
-// ================= UPDATE =================
-
 export async function PUT(
     req: Request,
     { params }: Params
@@ -73,31 +68,25 @@ export async function PUT(
 
         const body = await req.json();
 
-        const {
-            name,
-            email,
-            employeeId,
-            password,
-        } = body;
+        const { employeeId } = body;
 
-        const updateData: {
-            name: string;
-            email: string;
-            employeeId: string;
-            password?: string;
-        } = {
-            name,
-            email,
-            employeeId,
-        };
-
-        if (password && password.trim() !== "") {
-            updateData.password = await bcrypt.hash(password, 10);
+        if (!employeeId) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Employee ID is required",
+                },
+                {
+                    status: 400,
+                }
+            );
         }
 
         const updatedUser = await User.findByIdAndUpdate(
             id,
-            updateData,
+            {
+                employeeId,
+            },
             {
                 new: true,
             }
@@ -118,7 +107,7 @@ export async function PUT(
         return NextResponse.json(
             {
                 success: true,
-                message: "Employee updated successfully",
+                message: "Employee ID updated successfully",
                 user: updatedUser,
             },
             {
@@ -139,9 +128,6 @@ export async function PUT(
         );
     }
 }
-
-
-// ================= TOGGLE STATUS =================
 
 export async function PATCH(
     req: Request,

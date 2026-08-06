@@ -117,12 +117,95 @@ export default function EmployeeTable({
 
     if (loading) {
         return (
-            <div className="rounded-xl bg-white p-6 shadow">
-                Loading...
+            <div className="rounded-xl bg-white p-6 shadow animate-pulse">
+
+                {/* Desktop Skeleton */}
+                <div className="hidden lg:block overflow-x-auto">
+                    <table className="w-full">
+                        <thead>
+                            <tr className="border-b">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                    <th key={i} className="px-6 py-4">
+                                        <div className="h-4 w-24 rounded bg-gray-200"></div>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {Array.from({ length: 8 }).map((_, i) => (
+                                <tr key={i} className="border-b">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+
+                                            <div>
+                                                <div className="mb-2 h-4 w-32 rounded bg-gray-200"></div>
+                                                <div className="h-3 w-20 rounded bg-gray-200"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td className="px-6 py-4">
+                                        <div className="h-4 w-44 rounded bg-gray-200"></div>
+                                    </td>
+
+                                    <td className="px-6 py-4">
+                                        <div className="h-7 w-20 rounded-full bg-gray-200"></div>
+                                    </td>
+
+                                    <td className="px-6 py-4 text-center">
+                                        <div className="mx-auto h-5 w-10 rounded-full bg-gray-200"></div>
+                                    </td>
+
+                                    <td className="px-6 py-4">
+                                        <div className="flex justify-center gap-3">
+                                            <div className="h-10 w-10 rounded-xl bg-gray-200"></div>
+                                            <div className="h-10 w-10 rounded-xl bg-gray-200"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Mobile Skeleton */}
+                <div className="space-y-4 lg:hidden">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div
+                            key={i}
+                            className="rounded-2xl border p-4"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="h-12 w-12 rounded-full bg-gray-200"></div>
+
+                                <div className="flex-1">
+                                    <div className="mb-2 h-4 w-32 rounded bg-gray-200"></div>
+                                    <div className="h-3 w-20 rounded bg-gray-200"></div>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 space-y-2">
+                                <div className="h-3 w-full rounded bg-gray-200"></div>
+                                <div className="h-3 w-2/3 rounded bg-gray-200"></div>
+                            </div>
+
+                            <div className="mt-4 flex justify-between">
+                                <div className="h-5 w-10 rounded-full bg-gray-200"></div>
+
+                                <div className="flex gap-2">
+                                    <div className="h-10 w-10 rounded-xl bg-gray-200"></div>
+                                    <div className="h-10 w-10 rounded-xl bg-gray-200"></div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
             </div>
         );
     }
-
     const filteredUsers = users.filter((user) =>
         user.name.toLowerCase().includes(search.toLowerCase()) ||
         user.email.toLowerCase().includes(search.toLowerCase()) ||
@@ -192,15 +275,15 @@ export default function EmployeeTable({
                             <button
                                 onClick={() => handleToggleStatus(user._id)}
                                 className={`relative h-5 w-9 rounded-full transition ${user.isActive
-                                        ? "bg-green-500"
-                                        : "bg-gray-300"
+                                    ? "bg-green-500"
+                                    : "bg-gray-300"
                                     }`}
                             >
 
                                 <span
                                     className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition ${user.isActive
-                                            ? "left-5"
-                                            : "left-0.5"
+                                        ? "left-5"
+                                        : "left-0.5"
                                         }`}
                                 />
 

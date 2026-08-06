@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Eye, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 interface Attendance {
     _id: string;
@@ -12,9 +12,9 @@ interface Attendance {
     checkIn: string;
     locationLink: string;
     status: string;
+    day: string;
     date: string;
 }
-
 export default function RecentAttendance() {
 
     const [attendance, setAttendance] = useState<Attendance[]>([]);
@@ -104,9 +104,9 @@ export default function RecentAttendance() {
 
                                 <p>
                                     <span className="font-medium">
-                                        Date:
+                                        Day:
                                     </span>{" "}
-                                    {item.date}
+                                    {item.day}
                                 </p>
 
                                 <p>
@@ -120,19 +120,16 @@ export default function RecentAttendance() {
 
                             <div className="mt-4 flex gap-3">
 
-                                <a
-                                    href={item.locationLink}
-                                    target="_blank"
-                                    className="flex flex-1 items-center justify-center rounded-xl bg-blue-600 py-2 text-white"
-                                >
-                                    <MapPin size={18} />
-                                </a>
-
-                                <button
-                                    className="flex flex-1 items-center justify-center rounded-xl bg-slate-800 py-2 text-white"
-                                >
-                                    <Eye size={18} />
-                                </button>
+                                <div className="mt-4 w-full">
+                                    <a
+                                        href={item.locationLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex h-11 w-full items-center justify-center rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+                                    >
+                                        <MapPin size={18} />
+                                    </a>
+                                </div>
 
                             </div>
 
@@ -140,10 +137,10 @@ export default function RecentAttendance() {
 
                                 <span
                                     className={`rounded-full px-3 py-1 text-xs font-semibold ${item.status === "Present"
-                                            ? "bg-green-100 text-green-700"
-                                            : item.status === "Late"
-                                                ? "bg-yellow-100 text-yellow-700"
-                                                : "bg-red-100 text-red-700"
+                                        ? "bg-green-100 text-green-700"
+                                        : item.status === "Late"
+                                            ? "bg-yellow-100 text-yellow-700"
+                                            : "bg-red-100 text-red-700"
                                         }`}
                                 >
                                     {item.status}
@@ -182,9 +179,8 @@ export default function RecentAttendance() {
                             <th className="p-4 text-left">
                                 ID
                             </th>
-
                             <th className="p-4 text-left">
-                                Date
+                                Day
                             </th>
 
                             <th className="p-4 text-left">
@@ -248,8 +244,8 @@ export default function RecentAttendance() {
                                         {item.employeeId}
                                     </td>
 
-                                    <td className="p-4">
-                                        {item.date}
+                                    <td className="p-4 font-medium">
+                                        {item.day}
                                     </td>
 
                                     <td className="p-4">

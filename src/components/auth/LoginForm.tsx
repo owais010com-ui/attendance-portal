@@ -360,21 +360,6 @@ export default function LoginForm() {
 
                         </div>
 
-                        {/* <div className="rounded-xl bg-blue-50 p-4 text-center">
-                            <ShieldCheck
-                                size={28}
-                                className="mx-auto mb-2 text-blue-600"
-                            />
-
-                            <h3 className="font-semibold text-gray-800">
-                                Secure Login
-                            </h3>
-
-                            <p className="mt-1 text-sm text-gray-500">
-                                Protected & encrypted authentication.
-                            </p>
-                        </div> */}
-
                         <p className="mt-8 text-center text-sm text-gray-400">
                             © 2026 Attendance Portal. All rights reserved.
                         </p>
@@ -388,3 +373,20 @@ export default function LoginForm() {
         </main>
     );
 }
+
+
+
+{/* <div className="rounded-xl bg-blue-50 p-4 text-center">
+                            <ShieldCheck
+                                size={28}
+                                className="mx-auto mb-2 text-blue-600"
+                            />
+
+                            <h3 className="font-semibold text-gray-800">
+                                Secure Login
+                            </h3>
+
+                            <p className="mt-1 text-sm text-gray-500">
+                                Protected & encrypted authentication.
+                            </p>
+                        </div> */}

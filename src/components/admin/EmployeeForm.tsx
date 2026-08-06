@@ -10,6 +10,11 @@ interface Employee {
     employeeId: string;
 }
 
+interface FormData {
+    name: string;
+    email: string;
+    password?: string;
+}
 interface EmployeeFormProps {
     employee?: Employee | null;
     onSuccess?: () => void;
@@ -19,22 +24,21 @@ export default function EmployeeForm({
     employee,
     onSuccess,
 }: EmployeeFormProps) {
-    const [formData, setFormData] = useState(() => ({
+    const [formData, setFormData] = useState<FormData>({
         name: employee?.name ?? "",
         email: employee?.email ?? "",
-        password: "",
-        employeeId: employee?.employeeId ?? "",
-    }));
+        password: employee ? undefined : "",
+    });
 
     const [loading, setLoading] = useState(false);
 
     function handleChange(
         e: React.ChangeEvent<HTMLInputElement>
     ) {
-        setFormData({
-            ...formData,
+        setFormData((prev) => ({
+            ...prev,
             [e.target.name]: e.target.value,
-        });
+        }));
     }
 
     async function handleSubmit(
@@ -72,7 +76,6 @@ export default function EmployeeForm({
                 name: "",
                 email: "",
                 password: "",
-                employeeId: "",
             });
 
             onSuccess?.();
@@ -85,13 +88,20 @@ export default function EmployeeForm({
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+            onSubmit={handleSubmit}
+            className="space-y-4"
+        >
             <input
                 name="name"
                 value={formData.name}
+                disabled={!!employee}
                 onChange={handleChange}
                 placeholder="Name"
-                className="w-full rounded-lg border p-3"
+                className={`w-full rounded-lg border p-3 ${employee
+                    ? "cursor-not-allowed bg-gray-100 text-gray-500"
+                    : ""
+                    }`}
                 required
             />
 
@@ -99,39 +109,32 @@ export default function EmployeeForm({
                 name="email"
                 type="email"
                 value={formData.email}
+                disabled={!!employee}
                 onChange={handleChange}
                 placeholder="Email"
-                className="w-full rounded-lg border p-3"
+                className={`w-full rounded-lg border p-3 ${employee
+                    ? "cursor-not-allowed bg-gray-100 text-gray-500"
+                    : ""
+                    }`}
                 required
             />
 
-            <input
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder={
-                    employee
-                        ? "Leave blank to keep current password"
-                        : "Password"
-                }
-                className="w-full rounded-lg border p-3"
-                required={!employee}
-            />
-
-            <input
-                name="employeeId"
-                value={formData.employeeId}
-                onChange={handleChange}
-                placeholder="Employee ID"
-                className="w-full rounded-lg border p-3"
-                required
-            />
+            {!employee && (
+                <input
+                    name="password"
+                    type="password"
+                    value={formData.password ?? ""}
+                    onChange={handleChange}
+                    placeholder="Password"
+                    className="w-full rounded-lg border p-3"
+                    required
+                />
+            )}
 
             <button
                 type="submit"
                 disabled={loading}
-                className="cursor-pointer w-full rounded-lg bg-blue-600 py-3 text-white hover:bg-blue-700 disabled:opacity-50"
+                className="w-full cursor-pointer rounded-lg bg-blue-600 py-3 text-white transition hover:bg-blue-700 disabled:opacity-50"
             >
                 {loading
                     ? employee
