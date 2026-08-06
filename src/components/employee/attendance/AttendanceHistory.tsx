@@ -209,23 +209,34 @@ export default function AttendanceHistory({
 
                                     <td className="px-6 py-4 text-center">
 
-                                        <a
-                                            href={item.locationLink}
-                                            target="_blank"
-                                            className="inline-flex items-center justify-center rounded-lg bg-blue-600 p-2 text-white hover:bg-blue-700"
-                                        >
-                                            <MapPin size={18} />
-                                        </a>
+                                        {item.status === "Absent" || !item.locationLink ? (
+                                            <span
+                                                title="Location is not available for an absent record"
+                                                className="inline-flex cursor-not-allowed items-center justify-center rounded-lg bg-gray-200 p-2 text-gray-400"
+                                            >
+                                                <MapPin size={18} />
+                                            </span>
+                                        ) : (
+                                            <a
+                                                href={item.locationLink}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center justify-center rounded-lg bg-blue-600 p-2 text-white hover:bg-blue-700"
+                                            >
+                                                <MapPin size={18} />
+                                            </a>
+                                        )}
 
                                     </td>
 
                                     <td className="px-6 py-4 text-center">
 
                                         <button
+                                            disabled={item.status === "Absent" || !item.photo}
                                             onClick={() =>
                                                 window.open(item.photo, "_blank")
                                             }
-                                            className="inline-flex items-center justify-center rounded-lg bg-slate-800 p-2 text-white hover:bg-black"
+                                            className="inline-flex items-center justify-center rounded-lg bg-slate-800 p-2 text-white hover:bg-black disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
                                         >
                                             <Eye size={18} />
                                         </button>
@@ -296,9 +307,14 @@ export default function AttendanceHistory({
                             <div className="mt-4 flex gap-3">
 
                                 <a
-                                    href={item.locationLink}
-                                    target="_blank"
-                                    className="flex-1 rounded-xl bg-blue-600 py-2 text-center text-sm font-medium text-white"
+                                    href={item.status === "Absent" ? undefined : item.locationLink}
+                                    target={item.status === "Absent" ? undefined : "_blank"}
+                                    rel="noreferrer"
+                                    aria-disabled={item.status === "Absent" || !item.locationLink}
+                                    onClick={(event) => {
+                                        if (item.status === "Absent" || !item.locationLink) event.preventDefault();
+                                    }}
+                                    className={`flex-1 rounded-xl py-2 text-center text-sm font-medium ${item.status === "Absent" || !item.locationLink ? "cursor-not-allowed bg-gray-200 text-gray-400" : "bg-blue-600 text-white"}`}
                                 >
                                     Location
                                 </a>
@@ -307,7 +323,8 @@ export default function AttendanceHistory({
                                     onClick={() =>
                                         window.open(item.photo, "_blank")
                                     }
-                                    className="flex-1 rounded-xl bg-slate-800 py-2 text-sm font-medium text-white"
+                                    disabled={item.status === "Absent" || !item.photo}
+                                    className="flex-1 rounded-xl bg-slate-800 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
                                 >
                                     Photo
                                 </button>
