@@ -178,12 +178,12 @@ export default function Header() {
                         </button>
 
                         <button
-                            onClick={() => {
+                            onClick={async () => {
+                                await fetch("/api/auth/logout", {
+                                    method: "POST",
+                                });
 
-                                localStorage.removeItem("admin");
-
-                                router.push("/login");
-
+                                router.replace("/login");
                             }}
                             className="flex w-full items-center gap-3 px-4 py-3 text-left text-red-600 transition hover:bg-red-50"
                         >

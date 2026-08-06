@@ -1,40 +1,12 @@
-"use client";
+import { redirect } from "next/navigation";
+import EmployeeLayoutClient from "@/components/employee/EmployeeLayoutClient";
+import { getCurrentUser } from "@/lib/auth";
 
-import { useState } from "react";
+export default async function EmployeeLayout({ children }: { children: React.ReactNode }) {
+  const user = await getCurrentUser() as { role?: string } | null;
 
-import Sidebar from "@/components/employee/Sidebar";
-import Header from "@/components/employee/Header";
-import MobileBottomNav from "@/components/employee/MobileBottomNav";
+  if (!user) redirect("/login");
+  if (user.role !== "employee") redirect("/unauthorized");
 
-export default function EmployeeLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    const [collapsed, setCollapsed] = useState(false);
-
-    return (
-        <div className="flex h-screen overflow-hidden bg-gray-100">
-
-            <Sidebar
-                collapsed={collapsed}
-                setCollapsed={setCollapsed}
-            />
-
-            <div
-                className={`flex flex-1 flex-col overflow-hidden transition-all duration-300 ${collapsed ? "lg:ml-20" : "lg:ml-56"
-                    }`}
-            >
-                <Header />
-
-                <main className="flex-1 overflow-y-auto px-6 py-6 pb-24">
-                    {children}
-                </main>
-
-                <MobileBottomNav />
-
-            </div>
-
-        </div>
-    );
+  return <EmployeeLayoutClient>{children}</EmployeeLayoutClient>;
 }
