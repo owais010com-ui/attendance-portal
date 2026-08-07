@@ -43,10 +43,10 @@ const SettingsSchema = new Schema(
         },
 
         lateAfter: {
-            type: Number,
-            default: 10,
+            type: String,
+            default: "00:00",
         },
-
+        
         workingHours: {
             type: Number,
             default: 8,

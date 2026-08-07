@@ -12,7 +12,8 @@ export default function SettingsPage() {
     const [adminPhone, setAdminPhone] = useState("");
     const [officeStart, setOfficeStart] = useState("");
     const [officeEnd, setOfficeEnd] = useState("");
-    const [lateAfter, setLateAfter] = useState(10);
+    const [lateAfterHours, setLateAfterHours] = useState(0);
+    const [lateAfterMinutes, setLateAfterMinutes] = useState(10);
     const [workingHours, setWorkingHours] = useState(8);
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -26,6 +27,7 @@ export default function SettingsPage() {
             try {
                 const res = await fetch("/api/settings");
                 const data = await res.json();
+                const totalLateMinutes = data.settings.lateAfter || 10;
 
                 if (data.success) {
                     setAdminName(data.settings.adminName);
@@ -33,7 +35,8 @@ export default function SettingsPage() {
                     setAdminPhone(data.settings.adminPhone);
                     setOfficeStart(data.settings.officeStart || "09:00");
                     setOfficeEnd(data.settings.officeEnd || "18:00");
-                    setLateAfter(data.settings.lateAfter || 10);
+                    setLateAfterHours(Math.floor(totalLateMinutes / 60));
+                    setLateAfterMinutes(totalLateMinutes % 60);
                     setWorkingHours(data.settings.workingHours || 8);
                     // setCompanyName(data.settings.companyName || "");
                     // setCompanyEmail(data.settings.companyEmail || "");
@@ -107,7 +110,8 @@ export default function SettingsPage() {
                 body: JSON.stringify({
                     officeStart,
                     officeEnd,
-                    lateAfter,
+                    lateAfter:
+                        lateAfterHours * 60 + lateAfterMinutes,
                     workingHours,
                 }),
             });
@@ -452,28 +456,55 @@ export default function SettingsPage() {
 
                             <div>
                                 <label className="mb-2 block text-sm font-medium text-gray-700">
-                                    Late After (Minutes)
+                                    Late After
                                 </label>
 
-                                <input
-                                    type="number"
-                                    value={lateAfter}
-                                    onChange={(e) => setLateAfter(Number(e.target.value))}
-                                    className="h-11 w-full rounded-xl border border-gray-300 px-4 outline-none transition focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
-                                />
-                            </div>
+                                <div className="grid grid-cols-2 gap-4">
 
-                            <div>
-                                <label className="mb-2 block text-sm font-medium text-gray-700">
-                                    Working Hours
-                                </label>
+                                    <div>
+                                        <label className="mb-2 block text-xs text-gray-500">
+                                            Hours
+                                        </label>
 
-                                <input
-                                    type="number"
-                                    value={workingHours}
-                                    onChange={(e) => setWorkingHours(Number(e.target.value))}
-                                    className="h-11 w-full rounded-xl border border-gray-300 px-4 outline-none transition focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
-                                />
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={lateAfterHours}
+                                            onChange={(e) =>
+                                                setLateAfterHours(
+                                                    Number(e.target.value)
+                                                )
+                                            }
+                                            placeholder="0"
+                                            className="h-11 w-full rounded-xl border border-gray-300 px-4 outline-none transition focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-xs text-gray-500">
+                                            Minutes
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="59"
+                                            value={lateAfterMinutes}
+                                            onChange={(e) =>
+                                                setLateAfterMinutes(
+                                                    Number(e.target.value)
+                                                )
+                                            }
+                                            placeholder="0"
+                                            className="h-11 w-full rounded-xl border border-gray-300 px-4 outline-none transition focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
+                                        />
+                                    </div>
+
+                                </div>
+
+                                <p className="mt-1 text-xs text-gray-500">
+                                    Example: 1 hour 30 minutes
+                                </p>
                             </div>
 
                             <button

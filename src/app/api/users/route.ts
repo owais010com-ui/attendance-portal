@@ -2,9 +2,36 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
     try {
+        const currentUser = await getCurrentUser();
+
+        if (!currentUser) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Unauthorized",
+                },
+                {
+                    status: 401,
+                }
+            );
+        }
+
+        if (currentUser.role !== "admin") {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Access denied. Admin only.",
+                },
+                {
+                    status: 403,
+                }
+            );
+        }
+
         await connectDB();
 
         const users = await User.find({})
@@ -39,6 +66,32 @@ export async function GET() {
 
 export async function POST(req: Request) {
     try {
+        const currentUser = await getCurrentUser();
+
+        if (!currentUser) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Unauthorized",
+                },
+                {
+                    status: 401,
+                }
+            );
+        }
+
+        if (currentUser.role !== "admin") {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Access denied. Admin only.",
+                },
+                {
+                    status: 403,
+                }
+            );
+        }
+
         await connectDB();
 
         const body = await req.json();
@@ -48,6 +101,18 @@ export async function POST(req: Request) {
             email,
             password,
         } = body;
+
+        if (!name || !email || !password) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Name, email and password are required.",
+                },
+                {
+                    status: 400,
+                }
+            );
+        }
 
         const existingUser = await User.findOne({ email });
 
@@ -73,7 +138,7 @@ export async function POST(req: Request) {
             const match = emp.employeeId?.match(/^EMP(\d+)$/);
 
             if (match) {
-                const num = Number(match[1]);   
+                const num = Number(match[1]);
 
                 if (num > maxNumber) {
                     maxNumber = num;
@@ -82,7 +147,6 @@ export async function POST(req: Request) {
         });
 
         const employeeId = `EMP${String(maxNumber + 1).padStart(3, "0")}`;
-
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
