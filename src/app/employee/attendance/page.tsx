@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 import CameraSection from "@/components/employee/attendance/CameraSection";
 import AttendanceInfo from "@/components/employee/attendance/AttendanceInfo";
@@ -25,10 +25,28 @@ interface User {
     email: string;
 }
 
+type CameraMode = "user" | "environment";
+
 export default function EmployeeAttendancePage() {
 
-    const [pageLoading, setPageLoading] = useState(true);
-    const [loading, setLoading] = useState(false);
+    /* =========================
+       States
+    ========================= */
+
+    const [pageLoading, setPageLoading] =
+        useState(true);
+
+    const [loading, setLoading] =
+        useState(false);
+
+    const [cameraLoading, setCameraLoading] =
+        useState(false);
+
+    const [cameraActive, setCameraActive] =
+        useState(false);
+
+    const [cameraMode, setCameraMode] =
+        useState<CameraMode>("user");
 
     const [latitude, setLatitude] =
         useState<number | null>(null);
@@ -66,6 +84,7 @@ export default function EmployeeAttendancePage() {
     const canvasRef =
         useRef<HTMLCanvasElement>(null);
 
+
     /* =========================
        Convert Image To Blob
     ========================= */
@@ -96,6 +115,7 @@ export default function EmployeeAttendancePage() {
             }
         );
     }
+
 
     /* =========================
        Pakistan Current Time
@@ -133,6 +153,7 @@ export default function EmployeeAttendancePage() {
         return hour * 60 + minute;
     }
 
+
     /* =========================
        HH:mm -> Minutes
     ========================= */
@@ -144,6 +165,7 @@ export default function EmployeeAttendancePage() {
 
         return hour * 60 + minute;
     }
+
 
     /* =========================
        Check Attendance Time
@@ -164,7 +186,7 @@ export default function EmployeeAttendancePage() {
             timeToMinutes(endTime);
 
         // Normal timing
-        // Example: 09:00 -> 18:00
+        // 09:00 -> 18:00
         if (endMinutes > startMinutes) {
 
             return (
@@ -174,12 +196,13 @@ export default function EmployeeAttendancePage() {
         }
 
         // Overnight timing
-        // Example: 21:00 -> 01:00
+        // 21:00 -> 01:00
         return (
             currentMinutes >= startMinutes ||
             currentMinutes < endMinutes
         );
     }
+
 
     /* =========================
        Stop Camera
@@ -187,9 +210,15 @@ export default function EmployeeAttendancePage() {
 
     function stopCamera() {
 
+        const video =
+            videoRef.current;
+
+        if (!video) {
+            return;
+        }
+
         const stream =
-            videoRef.current
-                ?.srcObject as
+            video.srcObject as
             | MediaStream
             | null;
 
@@ -197,31 +226,49 @@ export default function EmployeeAttendancePage() {
 
             stream
                 .getTracks()
-                .forEach(
-                    (track) => {
-                        track.stop();
-                    }
-                );
+                .forEach((track) => {
+                    track.stop();
+                });
         }
 
-        if (videoRef.current) {
-            videoRef.current.srcObject =
-                null;
-        }
+        video.srcObject = null;
+
+        setCameraActive(false);
     }
+
 
     /* =========================
        Start Camera
-       Hidden Camera
     ========================= */
 
-    async function startCamera() {
+    async function startCamera(
+        mode: CameraMode = cameraMode
+    ) {
 
         if (!attendanceAllowed) {
+
+            toast.error(
+                `Attendance is available only between ${officeStart} and ${officeEnd}.`
+            );
+
+            return;
+        }
+
+        if (
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ) {
+
+            toast.error(
+                "Camera is not supported by this browser."
+            );
+
             return;
         }
 
         try {
+
+            setCameraLoading(true);
 
             stopCamera();
 
@@ -229,43 +276,40 @@ export default function EmployeeAttendancePage() {
                 await navigator.mediaDevices.getUserMedia(
                     {
                         video: {
-                            facingMode: "user",
+                            facingMode: {
+                                ideal: mode,
+                            },
+                            width: {
+                                ideal: 1280,
+                            },
+                            height: {
+                                ideal: 720,
+                            },
                         },
+                        audio: false,
                     }
                 );
 
-            if (videoRef.current) {
+            if (!videoRef.current) {
 
-                videoRef.current.srcObject =
-                    stream;
+                stream
+                    .getTracks()
+                    .forEach(
+                        (track) =>
+                            track.stop()
+                    );
 
-                /*
-                 * Wait until camera actually
-                 * has video dimensions.
-                 */
-                await new Promise<void>(
-                    (resolve) => {
-
-                        const video =
-                            videoRef.current;
-
-                        if (!video) {
-                            resolve();
-                            return;
-                        }
-
-                        if (video.readyState >= 2) {
-                            resolve();
-                            return;
-                        }
-
-                        video.onloadedmetadata =
-                            () => {
-                                resolve();
-                            };
-                    }
-                );
+                return;
             }
+
+            videoRef.current.srcObject =
+                stream;
+
+            await videoRef.current.play();
+
+            setCameraMode(mode);
+
+            setCameraActive(true);
 
         } catch (error) {
 
@@ -275,10 +319,36 @@ export default function EmployeeAttendancePage() {
             );
 
             toast.error(
-                "Unable to access camera."
+                "Unable to access camera. Please allow camera permission."
             );
+
+            setCameraActive(false);
+
+        } finally {
+
+            setCameraLoading(false);
         }
     }
+
+
+    /* =========================
+       Switch Front / Back Camera
+    ========================= */
+
+    async function switchCamera() {
+
+        if (!cameraActive) {
+            return;
+        }
+
+        const newMode: CameraMode =
+            cameraMode === "user"
+                ? "environment"
+                : "user";
+
+        await startCamera(newMode);
+    }
+
 
     /* =========================
        Get Attendance Settings
@@ -352,6 +422,7 @@ export default function EmployeeAttendancePage() {
         }
     }
 
+
     /* =========================
        Get Employee History
     ========================= */
@@ -384,12 +455,15 @@ export default function EmployeeAttendancePage() {
 
             if (data.success) {
 
-                setAttendanceHistory(
+                const employeeAttendance =
                     data.attendance.filter(
                         (item: Attendance) =>
                             item.employeeId ===
                             employeeId
-                    )
+                    );
+
+                setAttendanceHistory(
+                    employeeAttendance
                 );
             }
 
@@ -399,14 +473,25 @@ export default function EmployeeAttendancePage() {
                 "History Error:",
                 error
             );
+
+            toast.error(
+                "Unable to load attendance history."
+            );
         }
     }
+
 
     /* =========================
        Upload Image
     ========================= */
 
     async function handleImageUpload() {
+
+        if (!capturedImage) {
+            throw new Error(
+                "No image captured."
+            );
+        }
 
         const blob =
             dataURLtoBlob(
@@ -457,6 +542,7 @@ export default function EmployeeAttendancePage() {
         }
     }
 
+
     /* =========================
        Capture Photo
     ========================= */
@@ -472,13 +558,10 @@ export default function EmployeeAttendancePage() {
             return;
         }
 
-        if (
-            !videoRef.current ||
-            !canvasRef.current
-        ) {
+        if (!cameraActive) {
 
             toast.error(
-                "Camera is not ready."
+                "Please start the camera first."
             );
 
             return;
@@ -490,9 +573,19 @@ export default function EmployeeAttendancePage() {
         const canvas =
             canvasRef.current;
 
+        if (!video || !canvas) {
+
+            toast.error(
+                "Camera is not ready."
+            );
+
+            return;
+        }
+
         if (
             video.readyState < 2 ||
-            !video.videoWidth
+            !video.videoWidth ||
+            !video.videoHeight
         ) {
 
             toast.error(
@@ -530,7 +623,8 @@ export default function EmployeeAttendancePage() {
 
         const image =
             canvas.toDataURL(
-                "image/jpeg"
+                "image/jpeg",
+                0.9
             );
 
         setCapturedImage(image);
@@ -544,28 +638,30 @@ export default function EmployeeAttendancePage() {
         );
     }
 
+
     /* =========================
        Retake Photo
     ========================= */
 
     async function retakePhoto() {
 
-        if (!attendanceAllowed) {
-            return;
-        }
-
         setCaptured(false);
 
         setCapturedImage("");
 
-        await startCamera();
+        setCameraActive(false);
+
+        await startCamera(cameraMode);
     }
+
 
     /* =========================
        Load Page
     ========================= */
 
     useEffect(() => {
+
+        let mounted = true;
 
         async function loadPage() {
 
@@ -584,24 +680,26 @@ export default function EmployeeAttendancePage() {
                 const data =
                     await res.json();
 
-                if (data.success) {
-
-                    setUser(
-                        data.user
-                    );
-
-                    await getAttendanceHistory(
-                        data.user.employeeId
-                    );
+                if (!mounted) {
+                    return;
                 }
 
-                const allowed =
-                    await getAttendanceSettings();
+                if (!data.success) {
 
-                if (allowed) {
+                    toast.error(
+                        "Unable to load user information."
+                    );
 
-                    await startCamera();
+                    return;
                 }
+
+                setUser(data.user);
+
+                await getAttendanceHistory(
+                    data.user.employeeId
+                );
+
+                await getAttendanceSettings();
 
             } catch (error) {
 
@@ -613,17 +711,23 @@ export default function EmployeeAttendancePage() {
 
             } finally {
 
-                setPageLoading(false);
+                if (mounted) {
+                    setPageLoading(false);
+                }
             }
         }
 
         loadPage();
 
         return () => {
+
+            mounted = false;
+
             stopCamera();
         };
 
     }, []);
+
 
     /* =========================
        Monitor Office Time
@@ -633,31 +737,28 @@ export default function EmployeeAttendancePage() {
     useEffect(() => {
 
         const interval =
-            setInterval(
-                async () => {
+            setInterval(() => {
 
-                    const allowed =
-                        checkAttendanceTime(
-                            officeStart,
-                            officeEnd
-                        );
-
-                    setAttendanceAllowed(
-                        allowed
+                const allowed =
+                    checkAttendanceTime(
+                        officeStart,
+                        officeEnd
                     );
 
-                    if (!allowed) {
+                setAttendanceAllowed(
+                    allowed
+                );
 
-                        stopCamera();
+                if (!allowed) {
 
-                        setCaptured(false);
+                    stopCamera();
 
-                        setCapturedImage("");
-                    }
+                    setCaptured(false);
 
-                },
-                30000
-            );
+                    setCapturedImage("");
+                }
+
+            }, 30000);
 
         return () => {
 
@@ -670,6 +771,7 @@ export default function EmployeeAttendancePage() {
         officeStart,
         officeEnd,
     ]);
+
 
     /* =========================
        Mark Attendance
@@ -695,10 +797,10 @@ export default function EmployeeAttendancePage() {
             return;
         }
 
-        if (!captured) {
+        if (!captured || !capturedImage) {
 
             toast.error(
-                "Please capture your photo."
+                "Please capture your photo first."
             );
 
             return;
@@ -712,6 +814,15 @@ export default function EmployeeAttendancePage() {
 
             return;
         }
+
+        setLoading(true);
+
+        toast.loading(
+            "Getting your location...",
+            {
+                id: "attendance-location",
+            }
+        );
 
         navigator.geolocation.getCurrentPosition(
 
@@ -734,6 +845,13 @@ export default function EmployeeAttendancePage() {
 
                     setLocationLink(
                         mapLink
+                    );
+
+                    toast.loading(
+                        "Uploading photo...",
+                        {
+                            id: "attendance-location",
+                        }
                     );
 
                     const uploadedImage =
@@ -763,6 +881,13 @@ export default function EmployeeAttendancePage() {
                             mapLink,
                     };
 
+                    toast.loading(
+                        "Marking attendance...",
+                        {
+                            id: "attendance-location",
+                        }
+                    );
+
                     const res =
                         await fetch(
                             "/api/attendance",
@@ -787,7 +912,10 @@ export default function EmployeeAttendancePage() {
                     if (data.success) {
 
                         toast.success(
-                            "Attendance Marked Successfully ✅"
+                            "Attendance marked successfully ✅",
+                            {
+                                id: "attendance-location",
+                            }
                         );
 
                         stopCamera();
@@ -803,7 +931,11 @@ export default function EmployeeAttendancePage() {
                     } else {
 
                         toast.error(
-                            data.message
+                            data.message ||
+                            "Unable to mark attendance.",
+                            {
+                                id: "attendance-location",
+                            }
                         );
                     }
 
@@ -812,30 +944,43 @@ export default function EmployeeAttendancePage() {
                     console.log(error);
 
                     toast.error(
-                        "Something went wrong."
+                        "Something went wrong while marking attendance.",
+                        {
+                            id: "attendance-location",
+                        }
                     );
+
+                } finally {
+
+                    setLoading(false);
                 }
             },
 
-            () => {
+            (error) => {
+
+                console.log(
+                    "Location Error:",
+                    error
+                );
+
+                setLoading(false);
 
                 toast.error(
-                    "Please allow location access."
+                    "Please allow location access.",
+                    {
+                        id: "attendance-location",
+                    }
                 );
             },
 
             {
-                enableHighAccuracy:
-                    true,
-
-                timeout:
-                    15000,
-
-                maximumAge:
-                    0,
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0,
             }
         );
     }
+
 
     /* =========================
        Loading UI
@@ -880,6 +1025,7 @@ export default function EmployeeAttendancePage() {
         );
     }
 
+
     /* =========================
        Page
     ========================= */
@@ -895,6 +1041,7 @@ export default function EmployeeAttendancePage() {
                     <>
 
                         <CameraSection
+
                             captured={
                                 captured
                             }
@@ -911,6 +1058,18 @@ export default function EmployeeAttendancePage() {
                                 canvasRef
                             }
 
+                            cameraActive={
+                                cameraActive
+                            }
+
+                            cameraLoading={
+                                cameraLoading
+                            }
+
+                            cameraMode={
+                                cameraMode
+                            }
+
                             capturePhoto={
                                 capturePhoto
                             }
@@ -919,15 +1078,18 @@ export default function EmployeeAttendancePage() {
                                 retakePhoto
                             }
 
-                            onBack={() => {
+                            startCamera={
+                                startCamera
+                            }
 
-                                stopCamera();
-
-                                window.history.back();
-                            }}
+                            switchCamera={
+                                switchCamera
+                            }
                         />
 
+
                         <AttendanceInfo
+
                             latitude={
                                 latitude
                             }
@@ -990,6 +1152,7 @@ export default function EmployeeAttendancePage() {
 
                     </div>
                 )}
+
 
                 <AttendanceHistory
                     attendanceHistory={

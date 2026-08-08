@@ -38,7 +38,21 @@ export default function MobileBottomNav() {
 
     return (
 
-        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white/95 backdrop-blur-md shadow-[0_-5px_20px_rgba(0,0,0,0.08)] lg:hidden">
+        <div
+            className="
+                fixed
+                bottom-0
+                left-0
+                right-0
+                z-50
+                border-t
+                border-gray-200
+                bg-white/95
+                shadow-[0_-5px_20px_rgba(0,0,0,0.08)]
+                backdrop-blur-md
+                lg:hidden
+            "
+        >
 
             <div className="grid grid-cols-4">
 
@@ -48,39 +62,98 @@ export default function MobileBottomNav() {
 
                     const active =
                         pathname === item.href ||
-                        pathname.startsWith(item.href + "/");
+                        pathname.startsWith(
+                            item.href + "/"
+                        );
 
                     return (
 
                         <Link
                             key={item.href}
                             href={item.href}
-                            className="relative flex flex-col items-center justify-center py-3"
+                            className="
+                                relative
+                                flex
+                                flex-col
+                                items-center
+                                justify-center
+                                py-1.5
+                                sm:py-2
+                            "
                         >
 
                             {/* Active Line */}
 
                             {active && (
-                                <span className="absolute left-4 right-4 top-0 h-1 rounded-full bg-blue-600" />
+                                <span
+                                    className="
+                                        absolute
+                                        left-5
+                                        right-5
+                                        top-0
+                                        h-0.5
+                                        rounded-full
+                                        bg-blue-600
+                                        sm:left-6
+                                        sm:right-6
+                                    "
+                                />
                             )}
 
+                            {/* Icon */}
+
                             <div
-                                className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-300 ${active
-                                        ? "bg-blue-100 text-blue-600"
-                                        : "text-gray-500"
-                                    }`}
+                                className={`
+                                    flex
+                                    h-9
+                                    w-9
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    transition-all
+                                    duration-300
+                                    sm:h-9
+                                    sm:w-9
+                                    sm:rounded-xl
+                                    ${
+                                        active
+                                            ? "bg-blue-100 text-blue-600"
+                                            : "text-gray-500"
+                                    }
+                                `}
                             >
+
                                 <Icon
-                                    size={22}
-                                    strokeWidth={active ? 2.6 : 2}
+                                    size={19}
+                                    strokeWidth={
+                                        active
+                                            ? 2.6
+                                            : 2
+                                    }
+                                    className="
+                                        sm:h-[21px]
+                                        sm:w-[21px]
+                                    "
                                 />
+
                             </div>
 
+                            {/* Label */}
+
                             <span
-                                className={`mt-1 text-[11px] font-semibold transition ${active
-                                        ? "text-blue-600"
-                                        : "text-gray-500"
-                                    }`}
+                                className={`
+                                    mt-0.5
+                                    text-[10px]
+                                    font-semibold
+                                    transition
+                                    sm:mt-1
+                                    sm:text-[11px]
+                                    ${
+                                        active
+                                            ? "text-blue-600"
+                                            : "text-gray-500"
+                                    }
+                                `}
                             >
                                 {item.label}
                             </span>

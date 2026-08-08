@@ -32,7 +32,7 @@ export default function LogoutModal({
         <AnimatePresence>
             {isOpen && (
                 <motion.div
-                    className="fixed inset-0 z-500 flex items-center justify-center bg-black/50 p-4"
+                    className="fixed inset-0 z-5000 flex items-center justify-center bg-black/50 p-4"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}

@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -9,100 +10,234 @@ interface User {
     profileImage: string;
 }
 
-
 export default function Header() {
-
 
     const router = useRouter();
 
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] =
+        useState<User | null>(null);
+
     const pathname = usePathname();
 
     useEffect(() => {
+
         async function getUser() {
-            const res = await fetch("/api/auth/me", {
-                cache: "no-store",
-            });
 
-            const data = await res.json();
-            
-            console.log(data.user);
+            try {
 
-            if (data.success) {
-                setUser(data.user);
+                const res =
+                    await fetch(
+                        "/api/auth/me",
+                        {
+                            cache: "no-store",
+                        }
+                    );
+
+                const data =
+                    await res.json();
+
+                if (data.success) {
+                    setUser(data.user);
+                }
+
+            } catch (error) {
+
+                console.log(
+                    "Header User Error:",
+                    error
+                );
             }
         }
 
-
         getUser();
+
     }, []);
+
 
     const pageTitle = useMemo(() => {
 
         const titles: Record<string, string> = {
 
-            "/employee/dashboard": "Dashboard",
+            "/employee/dashboard":
+                "Dashboard",
 
-            "/employee/attendance": "Attendance",
+            "/employee/attendance":
+                "Attendance",
 
-            "/employee/profile": "My Profile",
+            "/employee/profile":
+                "My Profile",
 
-            "/employee/profile/edit": "Edit Profile",
+            "/employee/profile/edit":
+                "Edit Profile",
 
-            "/employee/change-password": "Change Password",
+            "/employee/change-password":
+                "Change Password",
 
-            "/employee/settings": "Settings",
+            "/employee/settings":
+                "Settings",
 
         };
 
-        return titles[pathname] || "Employee";
+        return (
+            titles[pathname] ||
+            "Employee"
+        );
 
     }, [pathname]);
+
+
     return (
-        <header className="sticky top-0 z-10 flex h-20 items-center justify-between bg-white px-6">
+
+        <header
+            className="
+                sticky
+                top-0
+                flex
+                h-14
+                items-center
+                justify-between
+                bg-white
+                px-3
+                sm:h-16
+                sm:px-5
+                lg:h-20
+                lg:px-6
+            "
+        >
 
             {/* Left */}
 
             <div>
 
-                <h1 className="text-2xl font-bold text-gray-800">
+                <h1
+                    className="
+                        text-lg
+                        font-bold
+                        text-gray-800
+                        sm:text-xl
+                        lg:text-2xl
+                    "
+                >
                     {pageTitle}
                 </h1>
 
             </div>
 
+
             {/* Right */}
 
-            <div className="flex items-center gap-4">
+            <div
+                className="
+                    flex
+                    items-center
+                    gap-2
+                    sm:gap-3
+                    lg:gap-4
+                "
+            >
 
                 <div
-                    onClick={() => router.push("/employee/profile")}
-                    className="flex cursor-pointer items-center gap-3 rounded-xl p-2 transition hover:bg-gray-100"
+                    onClick={() =>
+                        router.push(
+                            "/employee/profile"
+                        )
+                    }
+                    className="
+                        flex
+                        cursor-pointer
+                        items-center
+                        gap-2
+                        rounded-xl
+                        p-1
+                        transition
+                        hover:bg-gray-100
+                        sm:gap-3
+                        sm:p-2
+                    "
                 >
 
-                    <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-blue-600">
+                    {/* Profile Image */}
+
+                    <div
+                        className="
+                            flex
+                            h-9
+                            w-9
+                            items-center
+                            justify-center
+                            overflow-hidden
+                            rounded-full
+                            bg-blue-600
+                            sm:h-10
+                            sm:w-10
+                            lg:h-11
+                            lg:w-11
+                        "
+                    >
+
                         {user?.profileImage ? (
+
                             <Image
-                                src={user.profileImage}
+                                src={
+                                    user.profileImage
+                                }
                                 alt="Profile"
                                 width={44}
                                 height={44}
-                                className="h-full w-full object-cover"
+                                className="
+                                    h-full
+                                    w-full
+                                    object-cover
+                                "
                             />
+
                         ) : (
-                            <span className="text-lg font-bold text-white">
-                                {user?.name?.charAt(0).toUpperCase()}
+
+                            <span
+                                className="
+                                    text-sm
+                                    font-bold
+                                    text-white
+                                    sm:text-base
+                                    lg:text-lg
+                                "
+                            >
+                                {user?.name
+                                    ?.charAt(0)
+                                    .toUpperCase()}
                             </span>
+
                         )}
+
                     </div>
 
-                    <div className="hidden md:block">
 
-                        <h3 className="font-semibold text-gray-800">
-                            {user?.name || "Loading..."}
+                    {/* User Info */}
+
+                    <div
+                        className="
+                            hidden
+                            md:block
+                        "
+                    >
+
+                        <h3
+                            className="
+                                font-semibold
+                                text-gray-800
+                            "
+                        >
+                            {user?.name ||
+                                "Loading..."}
                         </h3>
 
-                        <p className="text-xs capitalize text-gray-500">
+                        <p
+                            className="
+                                text-xs
+                                capitalize
+                                text-gray-500
+                            "
+                        >
                             {user?.role || ""}
                         </p>
 
